@@ -4543,7 +4543,7 @@ bool ChatHandler::HandleResetTalentsCommand(const char * args)
     return false;
 }
 
-bool ChatHandler::HandleResetAllCommand(const char * args)
+/*bool ChatHandler::HandleResetAllCommand(const char * args)
 {
     if(!*args)
         return false;
@@ -4581,7 +4581,7 @@ bool ChatHandler::HandleResetAllCommand(const char * args)
 
     return true;
 }
-
+*/
 bool ChatHandler::HandleServerShutDownCancelCommand(const char* /*args*/)
 {
     sWorld.ShutdownCancel();
