@@ -1770,9 +1770,11 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
 
                 if (m_caster->IsFriendlyTo(unitTarget))
-                    m_caster->CastSpell(unitTarget, heal, true);
+                    m_caster->CastSpell(unitTarget, heal, false);
                 else
-                    m_caster->CastSpell(unitTarget, hurt, true);
+                    m_caster->CastSpell(unitTarget, hurt, false);
+                //To avoid Interrupt message
+                finish(true);
 
                 return;
             }
@@ -3743,7 +3745,7 @@ void Spell::DoSummon(SpellEffectIndex eff_idx)
         }
 
         // set timer for unsummon
-        if (duration > 0)
+        if (duration > 0 && m_spellInfo->Id != 70908) // Summon Elemental Water
             spawnCreature->SetDuration(duration);
 
         return;
