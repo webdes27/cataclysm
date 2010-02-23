@@ -23,11 +23,13 @@ EndScriptData */
 
 /* ContentData
 spell 34665
+spell 19512
 spell 8913
 spell 29528
 spell 46770
 spell 46023
 spell 47575
+spell 50706
 EndContentData */
 
 #include "precompiled.h"
@@ -44,10 +46,24 @@ enum
     NPC_HELBOAR                         = 16880,
     NPC_DREADTUSK                       = 16992,
 
+    // quest 6124/6129
+    SPELL_APPLY_SALVE                   = 19512,
+
+    NPC_SICKLY_DEER                     = 12298,
+    NPC_SICKLY_GAZELLE                  = 12296,
+
+    NPC_CURED_DEER                      = 12299,
+    NPC_CURED_GAZELLE                   = 12297,
+
     // target morbent fel
     SPELL_SACRED_CLEANSING              = 8913,
     NPC_MORBENT                         = 1200,
     NPC_WEAKENED_MORBENT                = 24782,
+
+    // quest 11515
+    SPELL_FEL_SIPHON_DUMMY              = 44936,
+    NPC_FELBLOOD_INITIATE               = 24918,
+    NPC_EMACIATED_FELBLOOD              = 24955,
 
     // target nestlewood owlkin
     SPELL_INOCULATE_OWLKIN              = 29528,
@@ -63,6 +79,12 @@ enum
 
     NPC_ELK_BUNNY                       = 27111,
     NPC_GRIZZLY_BUNNY                   = 27112,
+
+    // for quest 12516
+    SPELL_MODIFIED_MOJO                 = 50706,
+
+    NPC_PROPHET_OF_SSERATUS             = 28068,
+    NPC_WEAK_PROPHET_OF_SSERATUS        = 28151,
 
     // for quest 12459
     SPELL_SEEDS_OF_NATURES_WRATH        = 49587,
@@ -121,14 +143,19 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
             }
             return true;
         }
-        case SPELL_SACRED_CLEANSING:
+        case SPELL_APPLY_SALVE:
         {
-            if (uiEffIndex == EFFECT_INDEX_1)
+            if (uiEffIndex == EFFECT_INDEX_0)
             {
-                if (pCreatureTarget->GetEntry() != NPC_MORBENT)
+                if (pCaster->GetTypeId() != TYPEID_PLAYER)
                     return true;
 
-                pCreatureTarget->UpdateEntry(NPC_WEAKENED_MORBENT);
+                if (pCreatureTarget->GetEntry() == NPC_SICKLY_DEER && ((Player*)pCaster)->GetTeam() == ALLIANCE)
+                    pCreatureTarget->UpdateEntry(NPC_CURED_DEER);
+
+                if (pCreatureTarget->GetEntry() == NPC_SICKLY_GAZELLE && ((Player*)pCaster)->GetTeam() == HORDE)
+                    pCreatureTarget->UpdateEntry(NPC_CURED_GAZELLE);
+
                 return true;
             }
             return true;
@@ -173,6 +200,47 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
             }
             return true;
         }
+        case SPELL_MODIFIED_MOJO:
+        {
+            if (uiEffIndex == EFFECT_INDEX_0)
+            {
+                if (pCreatureTarget->GetEntry() != NPC_PROPHET_OF_SSERATUS)
+                    return true;
+
+                // Apparently done before updateEntry, so need to make a way to handle that
+                // "Mmm, more mojo"
+                // "%s drinks the Mojo"
+                // "NOOOOOOOOOOOOooooooo...............!"
+
+                pCreatureTarget->UpdateEntry(NPC_WEAK_PROPHET_OF_SSERATUS);
+                return true;
+            }
+            return true;
+        }
+        case SPELL_FEL_SIPHON_DUMMY:
+        {
+            if (uiEffIndex == EFFECT_INDEX_0)
+            {
+                if (pCreatureTarget->GetEntry() != NPC_FELBLOOD_INITIATE)
+                    return true;
+
+                pCreatureTarget->UpdateEntry(NPC_EMACIATED_FELBLOOD);
+                return true;
+            }
+            return true;
+        }
+        case SPELL_SACRED_CLEANSING:
+        {
+            if (uiEffIndex == EFFECT_INDEX_1)
+            {
+                if (pCreatureTarget->GetEntry() != NPC_MORBENT)
+                    return true;
+
+                pCreatureTarget->UpdateEntry(NPC_WEAKENED_MORBENT);
+                return true;
+            }
+            return true;
+        }
         case SPELL_SEEDS_OF_NATURES_WRATH:
         {
             if (uiEffIndex == EFFECT_INDEX_0)
@@ -189,6 +257,29 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
                 if (uiNewEntry)
                     pCreatureTarget->UpdateEntry(uiNewEntry);
 
+                return true;
+            }
+            return true;
+        }
+        case SPELL_STRENGTH_ANCIENTS:
+        {
+            if (uiEffIndex == EFFECT_INDEX_0)
+            {
+                if (pCaster->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if (urand(0, 1))
+                    {
+                        DoScriptText(EMOTE_AGGRO, pCreatureTarget);
+                        pCreatureTarget->setFaction(FACTION_HOSTILE);
+                        pCreatureTarget->AI()->AttackStart(pCaster);
+                    }
+                    else
+                    {
+                        DoScriptText(EMOTE_CREATE, pCreatureTarget);
+                        pCaster->CastSpell(pCaster, SPELL_CREATE_BARK_WALKERS, true);
+                        pCreatureTarget->ForcedDespawn(5000);
+                    }
+                }
                 return true;
             }
             return true;
@@ -218,29 +309,6 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
                             pPet->CastSpell(pCaster, SPELL_REPROGRAM_KILL_CREDIT, true);
 
                         pCreatureTarget->ForcedDespawn();
-                    }
-                }
-                return true;
-            }
-            return true;
-        }
-        case SPELL_STRENGTH_ANCIENTS:
-        {
-            if (uiEffIndex == EFFECT_INDEX_0)
-            {
-                if (pCaster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if (urand(0, 1))
-                    {
-                        DoScriptText(EMOTE_AGGRO, pCreatureTarget);
-                        pCreatureTarget->setFaction(FACTION_HOSTILE);
-                        pCreatureTarget->AI()->AttackStart(pCaster);
-                    }
-                    else
-                    {
-                        DoScriptText(EMOTE_CREATE, pCreatureTarget);
-                        pCaster->CastSpell(pCaster, SPELL_CREATE_BARK_WALKERS, true);
-                        pCreatureTarget->ForcedDespawn(5000);
                     }
                 }
                 return true;
