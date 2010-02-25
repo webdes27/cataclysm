@@ -9045,6 +9045,22 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         }
     }
 
+	// custom scripted mod from dummy
+    AuraList const& mDummy = owner->GetAurasByType(SPELL_AURA_DUMMY);
+    for(AuraList::const_iterator i = mDummy.begin(); i != mDummy.end(); ++i)
+    {
+        SpellEntry const *spell = (*i)->GetSpellProto();
+        //Fire and Brimstone
+        if (spell->SpellFamilyName == SPELLFAMILY_WARLOCK && spell->SpellIconID == 3173)
+        {
+            if (pVictim->HasAuraState(AURA_STATE_CONFLAGRATE) && (spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && spellProto->SpellFamilyFlags & UI64LIT(0x0002004000000000)))
+            {
+                DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f) / 100.0f;
+                break;
+            }
+        }
+    }
+
     // Custom scripted damage
     switch(spellProto->SpellFamilyName)
     {
@@ -9717,6 +9733,20 @@ int32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, int32
     for(AuraList::const_iterator i = mHealingGet.begin(); i != mHealingGet.end(); ++i)
         if ((*i)->isAffectedOnSpell(spellProto))
             TakenTotalMod *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
+
+	//Nourish 20% of heal increase if target is afected by Druids HOTs
+    if(spellProto->SpellFamilyFlags & UI64LIT(0x0200000000000000))
+    {
+        Unit::AuraList const& RejorRegr = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_HEAL);
+        for(Unit::AuraList::const_iterator i = RejorRegr.begin(); i != RejorRegr.end(); ++i)
+        {
+            if((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID)
+            {
+                TakenTotalMod *= 1.2f;
+                break;
+            }
+        }
+    }
 
     heal = (heal + TakenTotal) * TakenTotalMod;
 
