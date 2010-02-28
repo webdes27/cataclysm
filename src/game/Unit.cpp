@@ -6055,7 +6055,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     if (!triggered_spell_id)
                         return false;
 
-                    basepoints0 = triggerAmount;
+                    basepoints[0] = triggerAmount;
                     target = this;
                     break;
                 }
@@ -6830,7 +6830,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     float BaseWeaponSpeed = GetAttackTime(OFF_ATTACK)/1000.0;
 
                     // Value1: add the tooltip damage by swingspeed + Value2: add spelldmg by swingspeed
-                    basepoints0 = int32( (fire_onhit * BaseWeaponSpeed) + (add_spellpower * BaseWeaponSpeed) );
+                    basepoints[0] = int32( (fire_onhit * BaseWeaponSpeed) + (add_spellpower * BaseWeaponSpeed) );
                     triggered_spell_id = 10444;
                 }
 
@@ -6840,7 +6840,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     float BaseWeaponSpeed = GetAttackTime(BASE_ATTACK)/1000.0;
 
                     // Value1: add the tooltip damage by swingspeed +  Value2: add spelldmg by swingspeed
-                    basepoints0 = int32( (fire_onhit * BaseWeaponSpeed) + (add_spellpower * BaseWeaponSpeed) );
+                    basepoints[0] = int32( (fire_onhit * BaseWeaponSpeed) + (add_spellpower * BaseWeaponSpeed) );
                     triggered_spell_id = 10444;
                 }
 
@@ -6848,7 +6848,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 else
                     return false;
 
-                CastCustomSpell(pVictim,triggered_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+                CastCustomSpell(pVictim,triggered_spell_id,&basepoints[0],NULL,NULL,true,castItem,triggeredByAura);
                 return true;
             }
             // Improved Water Shield
@@ -6993,7 +6993,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             if (dummySpell->SpellFamilyFlags & UI64LIT(0x200000))
             {
                 triggered_spell_id = 10444;
-                basepoints0 = int32(triggerAmount * GetAttackTime(BASE_ATTACK) / (100 * IN_MILISECONDS));
+                basepoints[0] = int32(triggerAmount * GetAttackTime(BASE_ATTACK) / (100 * IN_MILISECONDS));
                 break;
             }
             break;
@@ -7046,7 +7046,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
 			// Unholy Blight
             if (dummySpell->Id == 49194)
             {
-                basepoints0 = triggerAmount * damage / 1000;
+                basepoints[0] = triggerAmount * damage / 1000;
                 triggered_spell_id = 50536;
                 break;
             }
