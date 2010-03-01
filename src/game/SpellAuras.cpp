@@ -4575,14 +4575,9 @@ void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
             }
         }
     }
-	// Heroic Fury
-  else if(GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARRIOR && GetSpellProto()->SpellIconID == 3149)
-  {
-    if (m_target->GetTypeId() != TYPEID_PLAYER)
-      return;
-
-    ((Player*)m_target)->RemoveSpellCooldown(20252, true);
-  }
+	// Heroic Fury (remove Intercept cooldown)
+    if( apply && GetId() == 60970 && m_target->GetTypeId() == TYPEID_PLAYER )
+        ((Player*)m_target)->RemoveSpellCooldown(20252,true);
 }
 
 void Aura::HandleModMechanicImmunityMask(bool apply, bool /*Real*/)
