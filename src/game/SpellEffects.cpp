@@ -2677,6 +2677,12 @@ void Spell::EffectTriggerSpell(SpellEffectIndex effIndex)
         caster = IsSpellWithCasterSourceTargetsOnly(spellInfo) ? unitTarget : m_caster;
     }
 
+	// Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
+    // Needed by freezing arrow and few other spells
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CategoryRecoveryTime && spellInfo->CategoryRecoveryTime
+        && m_spellInfo->Category == spellInfo->Category)
+        ((Player*)m_caster)->RemoveSpellCooldown(spellInfo->Id);
+
     caster->CastSpell(unitTarget,spellInfo,true,NULL,NULL,m_originalCasterGUID);
 }
 
