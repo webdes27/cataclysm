@@ -217,6 +217,7 @@ class Spell
     friend void Unit::SetCurrentCastedSpell( Spell * pSpell );
     public:
 
+        void EffectEmpty(SpellEffectIndex eff_idx);
 		void EffectSummonPosessed(SpellEffectIndex eff_idx);
         void EffectNULL(SpellEffectIndex eff_idx);
         void EffectUnused(SpellEffectIndex eff_idx);
@@ -232,6 +233,7 @@ class Spell
         void EffectPowerBurn(SpellEffectIndex eff_idx);
         void EffectPowerDrain(SpellEffectIndex eff_idx);
         void EffectHeal(SpellEffectIndex eff_idx);
+        void EffectBind(SpellEffectIndex eff_idx);
         void EffectHealthLeech(SpellEffectIndex eff_idx);
         void EffectQuestComplete(SpellEffectIndex eff_idx);
         void EffectCreateItem(SpellEffectIndex eff_idx);
