@@ -864,7 +864,7 @@ case 4015:// Reset Pet Talent Points
 break;
 
 case 4020://Remove Res Sickness
-	if(!pPlayer->HasAura(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS,0))
+	if(!pPlayer->HasAura(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS, EFFECT_INDEX_0))
 	{
 		pCreature->MonsterWhisper("You don't have resurrection sickness.", pPlayer->GetGUID());
 		GossipHello_TeleNPC(pPlayer, pCreature);
