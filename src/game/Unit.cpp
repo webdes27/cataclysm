@@ -2349,7 +2349,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                         // Trigger cooldown aura
                         pVictim->CastSpell(pVictim, 66233, true);
                         // Calculate heal amount
-                        int32 healAmount = preventDeathSpell->CalculateSimpleValue(1);
+                        int32 healAmount = preventDeathSpell->CalculateSimpleValue(EFFECT_INDEX_1);
                         healAmount = defenseAmount * pVictim->GetMaxHealth() * healAmount / 14000 - pVictim->GetHealth();
                         // Heal if positive value
                         if (healAmount > 0)
