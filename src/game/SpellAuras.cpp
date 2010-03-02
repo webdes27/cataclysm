@@ -4423,6 +4423,10 @@ void Aura::HandleAuraModIncreaseSpeed(bool /*apply*/, bool Real)
         return;
 
     m_target->UpdateSpeed(MOVE_RUN, true);
+
+	// Spirit Walk
+    if (apply && GetSpellProto()->Id == 58875)
+        m_target->CastSpell(m_target, 58876, true);
 }
 
 void Aura::HandleAuraModIncreaseMountedSpeed(bool apply, bool Real)
