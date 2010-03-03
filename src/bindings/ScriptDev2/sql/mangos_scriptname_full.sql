@@ -636,7 +636,6 @@ UPDATE creature_template SET ScriptName='boss_lord_crispin_ference' WHERE entry=
 UPDATE creature_template SET ScriptName='boss_bigbadwolf' WHERE entry=17521;
 UPDATE creature_template SET ScriptName='mob_shadow_of_aran' WHERE entry=18254;
 UPDATE creature_template SET ScriptName='mob_aran_elemental' WHERE entry=17167;
-UPDATE creature_template SET ScriptName='mob_kilrek' WHERE entry=17229;
 UPDATE creature_template SET ScriptName='mob_demon_chain' WHERE entry=17248;
 UPDATE creature_template SET ScriptName='npc_fiendish_portal' WHERE entry=17265;
 UPDATE creature_template SET ScriptName='mob_cyclone' WHERE entry=18412;
@@ -734,7 +733,7 @@ UPDATE creature_template SET ScriptName='boss_gluth' WHERE entry=15932;
 -- UPDATE creature_template SET ScriptName='boss_stalagg' WHERE entry=15929;
 -- UPDATE creature_template SET ScriptName='boss_feugen' WHERE entry=15930;
 UPDATE creature_template SET ScriptName='boss_sapphiron' WHERE entry=15989;
--- UPDATE creature_template SET ScriptName='boss_kelthuzad' WHERE entry=15990;
+UPDATE creature_template SET ScriptName='boss_kelthuzad' WHERE entry=15990;
 
 /* NETHERSTORM */
 DELETE FROM areatrigger_scripts WHERE entry=4497;
