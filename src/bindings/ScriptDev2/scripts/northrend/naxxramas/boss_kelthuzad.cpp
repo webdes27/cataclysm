@@ -16,27 +16,13 @@
 
 /* ScriptData
 SDName: Boss_KelThuzud
-SD%Complete: 0
-SDComment: VERIFY SCRIPT
+SD%Complete: 50
+SDComment: In progress, phase 1 not implemented, timers will need adjustments
 SDCategory: Naxxramas
 EndScriptData */
 
 #include "precompiled.h"
 #include "naxxramas.h"
-
-//***THIS SCRIPTS IS UNDER DEVELOPMENT***
-/*
-DATA.
-This script has been made with info taken from wowwikki... so there are things wrong...
-like spell timers and Says. Also there's another major problem as there is no aggroed list
-I cannot make Kel'thuzad to target specific party members, that is needed for spells like
-Mana Detonation... so what I'm doing untill now is just to cast everything on my main aggroed
-target. Sorry for him.
-Another bug is that there are spells that are actually NOT working... I have to implement
-them first.
-Need DISPELL efect
-I also don't know the emotes
-*/
 
 enum
 {
@@ -58,7 +44,8 @@ enum
 
     SAY_SUMMON_MINIONS                  = -1533105,         //start of phase 1
 
-    SAY_AGGRO1                          = -1533094,         //start of phase 2
+    EMOTE_PHASE2                        = -1533135,         //start of phase 2
+    SAY_AGGRO1                          = -1533094,
     SAY_AGGRO2                          = -1533095,
     SAY_AGGRO3                          = -1533096,
 
@@ -78,7 +65,7 @@ enum
     SAY_SPECIAL3_MANA_DET               = -1533107,
     SAY_SPECIAL2_DISPELL                = -1533108,
 
-    EMOTE_GUARDIANS                     = -1533134,
+    EMOTE_GUARDIAN                      = -1533134,         // at each guardian summon
 
     //spells to be casted
     SPELL_FROST_BOLT                    = 28478,
@@ -91,89 +78,31 @@ enum
 
     SPELL_MANA_DETONATION               = 27819,
     SPELL_SHADOW_FISSURE                = 27810,
-    SPELL_FROST_BLAST                   = 27808,
-
-    NPC_GUARDIAN                        = 16441,
+    SPELL_FROST_BLAST                   = 27808
 };
 
-//Positional defines
-#define ADDX_LEFT_FAR               3783.272705f
-#define ADDY_LEFT_FAR               -5062.697266f
-#define ADDZ_LEFT_FAR               143.711203f
-#define ADDO_LEFT_FAR               3.617599f
-
-#define ADDX_LEFT_MIDDLE            3730.291260f
-#define ADDY_LEFT_MIDDLE            -5027.239258f
-#define ADDZ_LEFT_MIDDLE            143.956909f
-#define ADDO_LEFT_MIDDLE            4.461900f
-
-#define ADDX_LEFT_NEAR              3683.868652f
-#define ADDY_LEFT_NEAR              -5057.281250f
-#define ADDZ_LEFT_NEAR              143.183884f
-#define ADDO_LEFT_NEAR              5.237086f
-
-#define ADDX_RIGHT_FAR              3759.355225f
-#define ADDY_RIGHT_FAR              -5174.128418f
-#define ADDZ_RIGHT_FAR              143.802383f
-#define ADDO_RIGHT_FAR              2.170104f
-
-#define ADDX_RIGHT_MIDDLE           370.724365f
-#define ADDY_RIGHT_MIDDLE           -5185.123047f
-#define ADDZ_RIGHT_MIDDLE           143.928024f
-#define ADDO_RIGHT_MIDDLE           1.309310f
-
-#define ADDX_RIGHT_NEAR             3665.121094f
-#define ADDY_RIGHT_NEAR             -5138.679199f
-#define ADDZ_RIGHT_NEAR             143.183212f
-#define ADDO_RIGHT_NEAR             0.604023f
-
-#define WALKX_LEFT_FAR              3754.431396f
-#define WALKY_LEFT_FAR              -5080.727734f
-#define WALKZ_LEFT_FAR              142.036316f
-#define WALKO_LEFT_FAR              3.736189f
-
-#define WALKX_LEFT_MIDDLE           3724.396484f
-#define WALKY_LEFT_MIDDLE           -5061.330566f
-#define WALKZ_LEFT_MIDDLE           142.032700f
-#define WALKO_LEFT_MIDDLE           4.564785f
-
-#define WALKX_LEFT_NEAR             3687.158424f
-#define WALKY_LEFT_NEAR             -5076.834473f
-#define WALKZ_LEFT_NEAR             142.017319f
-#define WALKO_LEFT_NEAR             5.237086f
-
-#define WALKX_RIGHT_FAR             3687.571777f
-#define WALKY_RIGHT_FAR             -5126.831055f
-#define WALKZ_RIGHT_FAR             142.017807f
-#define WALKO_RIGHT_FAR             0.604023f
-
-#define WALKX_RIGHT_MIDDLE          3707.990733f
-#define WALKY_RIGHT_MIDDLE          -5151.450195f
-#define WALKZ_RIGHT_MIDDLE          142.032562f
-#define WALKO_RIGHT_MIDDLE          1.376855f
-
-#define WALKX_RIGHT_NEAR            3739.500000f
-#define WALKY_RIGHT_NEAR            -5141.883989f
-#define WALKZ_RIGHT_NEAR            142.0141130f
-#define WALKO_RIGHT_NEAR            2.121412f
+static float M_F_ANGLE = 0.2f;                              // to adjust for map rotation
+static float M_F_RANGE = 55.0f;                             // ~ range from center of chamber to center of alcove
 
 struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 {
     boss_kelthuzadAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
+        m_pInstance = (instance_naxxramas*)pCreature->GetInstanceData();
+        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
+
         memset(&m_auiGuardiansGUID, 0, sizeof(m_auiGuardiansGUID));
         m_uiGuardiansCount = 0;
-
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
+        m_uiGuardiansCountMax = m_bIsRegularMode ? 2 : 4;
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_naxxramas* m_pInstance;
     bool m_bIsRegularMode;
 
     uint64 m_auiGuardiansGUID[5];
     uint32 m_uiGuardiansCount;
+    uint32 m_uiGuardiansCountMax;
     uint32 m_uiGuardiansTimer;
     uint32 m_uiFrostBoltTimer;
     uint32 m_uiFrostBoltNovaTimer;
@@ -185,10 +114,6 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 
     bool m_bIsPhase2;
     bool m_bIsPhase3;
-
-    float m_fWalk_Pos_X;
-    float m_fWalk_Pos_Y;
-    float m_fWalk_Pos_Z;
 
     void Reset()
     {
@@ -218,10 +143,6 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         m_uiPhase1Timer = 310000;                           //Phase 1 lasts 5 minutes and 10 seconds
         m_bIsPhase2 = false;
         m_bIsPhase3 = false;
-
-        m_fWalk_Pos_X = 0.0f;
-        m_fWalk_Pos_Y = 0.0f;
-        m_fWalk_Pos_Z = 0.0f;
     }
 
     void KilledUnit(Unit* pVictim)
@@ -269,11 +190,54 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             m_pInstance->SetData(TYPE_KELTHUZAD, FAIL);
     }
 
+    float GetLocationAngle(uint32 uiId)
+    {
+        switch(uiId)
+        {
+            case 1: return M_PI_F - M_F_ANGLE;              // south
+            case 2: return (M_PI_F / 2) * 3 - M_F_ANGLE;    // east
+            case 3: return M_PI_F / 2 - M_F_ANGLE;          // west
+            case 4: return M_PI_F / 4 - M_F_ANGLE;          // north-west
+            case 5: return (M_PI_F / 4) * 7 - M_F_ANGLE;    // north-east
+            case 6: return (M_PI_F / 4) * 5 - M_F_ANGLE;    // south-east
+            case 7: return 3*M_PI_F / 4 - M_F_ANGLE;        // south-west
+        }
+
+        return M_F_ANGLE;
+    }
+
+    void SummonGuardian()
+    {
+        if (!m_pInstance)
+            return;
+
+        float fAngle = GetLocationAngle(urand(1,7));
+
+        // may fail and give invalid coordinates, so later need to make sure areatrigger really visited.
+        float fx, fy, fz;
+        m_pInstance->GetChamberCenterCoords(fx, fy, fz);
+
+        fx += M_F_RANGE * cos(fAngle);
+        fy += M_F_RANGE * sin(fAngle);
+
+        MaNGOS::NormalizeMapCoord(fx);
+        MaNGOS::NormalizeMapCoord(fy);
+
+        m_creature->SummonCreature(NPC_GUARDIAN, fx, fy, m_creature->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+    }
+
     void JustSummoned(Creature* pSummoned)
     {
         if (pSummoned->GetEntry() == NPC_GUARDIAN)
         {
-            pSummoned->GetMotionMaster()->MovePoint(0, m_fWalk_Pos_X, m_fWalk_Pos_Y, m_fWalk_Pos_Z);
+            DoScriptText(EMOTE_GUARDIAN, m_creature);
+
+            if (m_pInstance)
+            {
+                float fx, fy, fz;
+                m_pInstance->GetChamberCenterCoords(fx, fy, fz);
+                pSummoned->GetMotionMaster()->MovePoint(0, fx, fy, fz);
+            }
 
             //Safe storing of creatures
             m_auiGuardiansGUID[m_uiGuardiansCount] = pSummoned->GetGUID();
@@ -281,6 +245,12 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             //Update guardian count
             ++m_uiGuardiansCount;
         }
+    }
+
+    void SummonedMovementInform(Creature* pSummoned, uint32 uiMotionType, uint32 uiPointId)
+    {
+        if (uiMotionType == POINT_MOTION_TYPE && uiPointId == 0)
+            pSummoned->SetInCombatWithZone();
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -362,57 +332,12 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             DoScriptText(SAY_ANSWER_REQUEST, m_creature);
         }
 
-        if (m_bIsPhase3 && m_uiGuardiansCount < 5)
+        if (m_bIsPhase3 && m_uiGuardiansCount < m_uiGuardiansCountMax)
         {
             if (m_uiGuardiansTimer < uiDiff)
             {
                 //Summon a Guardian of Icecrown in a random alcove
-
-                switch(urand(0, 5))
-                {
-                    case 0:
-                        //Setting walk position
-                        m_fWalk_Pos_X = WALKX_LEFT_FAR;
-                        m_fWalk_Pos_Y = WALKY_LEFT_FAR;
-                        m_fWalk_Pos_Z = WALKZ_LEFT_FAR;
-                        m_creature->SummonCreature(NPC_GUARDIAN, ADDX_LEFT_FAR,ADDY_LEFT_FAR,ADDZ_LEFT_FAR,ADDO_LEFT_FAR,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
-                        break;
-                    case 1:
-                        //Start moving guardian towards the center of the room
-                        m_fWalk_Pos_X = WALKX_LEFT_MIDDLE;
-                        m_fWalk_Pos_Y = WALKY_LEFT_MIDDLE;
-                        m_fWalk_Pos_Z = WALKZ_LEFT_MIDDLE;
-                        m_creature->SummonCreature(NPC_GUARDIAN, ADDX_LEFT_MIDDLE,ADDY_LEFT_MIDDLE,ADDZ_LEFT_MIDDLE,ADDO_LEFT_MIDDLE,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
-                        break;
-                    case 2:
-                        //Start moving guardian towards the center of the room
-                        m_fWalk_Pos_X = WALKX_LEFT_NEAR;
-                        m_fWalk_Pos_Y = WALKY_LEFT_NEAR;
-                        m_fWalk_Pos_Z = WALKZ_LEFT_NEAR;
-                        m_creature->SummonCreature(NPC_GUARDIAN, ADDX_LEFT_NEAR,ADDY_LEFT_NEAR,ADDZ_LEFT_NEAR,ADDO_LEFT_NEAR,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
-                        break;
-                    case 3:
-                        //Start moving guardian towards the center of the room
-                        m_fWalk_Pos_X = WALKX_RIGHT_FAR;
-                        m_fWalk_Pos_Y = WALKY_RIGHT_FAR;
-                        m_fWalk_Pos_Z = WALKZ_RIGHT_FAR;
-                        m_creature->SummonCreature(NPC_GUARDIAN, ADDX_RIGHT_FAR,ADDY_RIGHT_FAR,ADDZ_RIGHT_FAR,ADDO_RIGHT_FAR,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
-                        break;
-                    case 4:
-                        //Start moving guardian towards the center of the room
-                        m_fWalk_Pos_X = WALKX_RIGHT_MIDDLE;
-                        m_fWalk_Pos_Y = WALKY_RIGHT_MIDDLE;
-                        m_fWalk_Pos_Z = WALKZ_RIGHT_MIDDLE;
-                        m_creature->SummonCreature(NPC_GUARDIAN, ADDX_RIGHT_MIDDLE,ADDY_RIGHT_MIDDLE,ADDZ_RIGHT_MIDDLE,ADDO_RIGHT_MIDDLE,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
-                        break;
-                    case 5:
-                        //Start moving guardian towards the center of the room
-                        m_fWalk_Pos_X = WALKX_RIGHT_NEAR;
-                        m_fWalk_Pos_Y = WALKY_RIGHT_NEAR;
-                        m_fWalk_Pos_Z = WALKZ_RIGHT_NEAR;
-                        m_creature->SummonCreature(NPC_GUARDIAN, ADDX_RIGHT_NEAR,ADDY_RIGHT_NEAR,ADDZ_RIGHT_NEAR,ADDO_RIGHT_NEAR,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
-                        break;
-                }
+                SummonGuardian();
 
                 //5 seconds until summoning next guardian
                 m_uiGuardiansTimer = 5000;
