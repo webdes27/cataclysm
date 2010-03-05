@@ -463,8 +463,8 @@ WorldObject* Spell::FindCorpseUsing()
     return result;
 }
 
-// explicitly instantiate for use in SpellEffects.cpp
-template WorldObject* Spell::FindCorpseUsing<MaNGOS::RaiseDeadObjectCheck>();
+/*/ explicitly instantiate for use in SpellEffects.cpp
+template WorldObject* Spell::FindCorpseUsing<MaNGOS::RaiseDeadObjectCheck>();*/		//temporary
 
 void Spell::FillTargetMap()
 {
@@ -4332,9 +4332,9 @@ SpellCastResult Spell::CheckCast(bool strict)
             // Exclusion for Mutilate:Facing Limitation was removed in 2.0.1 and 3.0.3, but they still use the same, old Ex-Flags
             // Exclusion for Throw: Facing limitation was added in 3.2.x, but that shouldn't be
             if ((m_spellInfo->SpellFamilyName != SPELLFAMILY_DRUID || (m_spellInfo->SpellFamilyFlags != UI64LIT(0x0000000000020000))) &&
-                (m_spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE || (m_spellInfo->SpellFamilyFlags != UI64LIT(0x0020000000000000))) &&
+				(m_spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE || (m_spellInfo->SpellFamilyFlags != UI64LIT(0x0020000000000000))) &&
                 m_spellInfo->Id != 2764)
-            {
+             {
                 SendInterrupted(2);
                 return SPELL_FAILED_NOT_BEHIND;
             }
@@ -5218,7 +5218,8 @@ SpellCastResult Spell::CheckCasterAuras() const
     SpellCastResult prevented_reason = SPELL_CAST_OK;
     // Have to check if there is a stun aura. Otherwise will have problems with ghost aura apply while logging out
     uint32 unitflag = m_caster->GetUInt32Value(UNIT_FIELD_FLAGS);     // Get unit state
-    if (unitflag & UNIT_FLAG_STUNNED && !(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_STUNNED))
+    if (unitflag & UNIT_FLAG_STUNNED && (!(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_STUNNED) ||
+        (m_spellInfo->Id == 33206 && !m_caster->HasAura(63248))))
         prevented_reason = SPELL_FAILED_STUNNED;
     else if (unitflag & UNIT_FLAG_CONFUSED && !(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_CONFUSED))
         prevented_reason = SPELL_FAILED_CONFUSED;

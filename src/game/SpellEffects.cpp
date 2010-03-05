@@ -255,6 +255,8 @@ void Spell::EffectResurrectNew(SpellEffectIndex eff_idx)
         return;
 
     uint32 health = damage;
+	if( m_caster->HasAura(54733, EFFECT_INDEX_0) ) // Glyph of Rebirth
+		health = pTarget->GetMaxHealth();
     uint32 mana = m_spellInfo->EffectMiscValue[eff_idx];
     pTarget->setResurrectRequestData(m_caster->GetGUID(), m_caster->GetMapId(), m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), health, mana);
     SendResurrectRequest(pTarget);
@@ -520,6 +522,14 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                             break;
                         }
                     }
+                }
+				// Smite
+                else if (m_spellInfo->SpellFamilyFlags & 0x80LL)
+                {
+                    // Glyph of Smite
+                    if (Aura * aurEff = m_caster->GetAura(55692, EFFECT_INDEX_0))
+                        if (unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x100000, 0, m_caster->GetGUID()))
+                            damage += damage * aurEff->GetModifier()->m_amount / 100;
                 }
                 break;
             }
@@ -3494,7 +3504,8 @@ void Spell::EffectEnergize(SpellEffectIndex eff_idx)
             level_multiplier = 4;
             break;
         case 31930:                                         // Judgements of the Wise
-        case 63375:                                         // Improved Stormstrike
+        case 68082:                                         // Glyph of Seal of Command
+		case 63375:                                         // Improved Stormstrike
             damage = damage * unitTarget->GetCreateMana() / 100;
             break;
 		case 48542:                                         // Revitalize (mana restore case)
