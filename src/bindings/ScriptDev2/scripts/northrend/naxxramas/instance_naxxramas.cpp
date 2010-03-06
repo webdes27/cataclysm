@@ -87,15 +87,16 @@ void instance_naxxramas::OnCreatureCreate(Creature* pCreature)
 {
     switch(pCreature->GetEntry())
     {
-        case NPC_ANUB_REKHAN: m_uiAnubRekhanGUID = pCreature->GetGUID(); break;
-        case NPC_FAERLINA:    m_uiFaerlinanGUID = pCreature->GetGUID();  break;
-        case NPC_THADDIUS:    m_uiThaddiusGUID = pCreature->GetGUID();   break;
-        case NPC_STALAGG:     m_uiStalaggGUID = pCreature->GetGUID();    break;
-        case NPC_FEUGEN:      m_uiFeugenGUID = pCreature->GetGUID();     break;
-        case NPC_ZELIEK:      m_uiZeliekGUID = pCreature->GetGUID();     break;
-        case NPC_THANE:       m_uiThaneGUID = pCreature->GetGUID();      break;
-        case NPC_BLAUMEUX:    m_uiBlaumeuxGUID = pCreature->GetGUID();   break;
-        case NPC_RIVENDARE:   m_uiRivendareGUID = pCreature->GetGUID();  break;
+        case NPC_ANUB_REKHAN:       m_uiAnubRekhanGUID = pCreature->GetGUID();  break;
+        case NPC_FAERLINA:          m_uiFaerlinanGUID = pCreature->GetGUID();   break;
+        case NPC_THADDIUS:          m_uiThaddiusGUID = pCreature->GetGUID();    break;
+        case NPC_STALAGG:           m_uiStalaggGUID = pCreature->GetGUID();     break;
+        case NPC_FEUGEN:            m_uiFeugenGUID = pCreature->GetGUID();      break;
+        case NPC_ZELIEK:            m_uiZeliekGUID = pCreature->GetGUID();      break;
+        case NPC_THANE:             m_uiThaneGUID = pCreature->GetGUID();       break;
+        case NPC_BLAUMEUX:          m_uiBlaumeuxGUID = pCreature->GetGUID();    break;
+        case NPC_RIVENDARE:         m_uiRivendareGUID = pCreature->GetGUID();   break;
+        case NPC_SUB_BOSS_TRIGGER:  m_lGothTriggerList.push_back(pCreature->GetGUID()); break;
     }
 }
 
@@ -345,7 +346,38 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
                 DoUseDoorOrButton(m_uiKelthuzadDoorGUID);
             break;
         case TYPE_KELTHUZAD:
-            m_auiEncounter[14] = uiData;
+            switch(uiData)
+            {
+                case SPECIAL:
+                {
+                    Map::PlayerList const& lPlayers = instance->GetPlayers();
+
+                    if (lPlayers.isEmpty())
+                        return;
+
+                    bool bCanBegin = true;
+
+                    for(Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
+                    {
+                        if (Player* pPlayer = itr->getSource())
+                        {
+                            if (!pPlayer->IsWithinDist2d(m_fChamberCenterX, m_fChamberCenterY, 15.0f))
+                                bCanBegin = false;
+                        }
+                    }
+
+                    if (bCanBegin)
+                        m_auiEncounter[14] = IN_PROGRESS;
+
+                    break;
+                }
+                case FAIL:
+                    m_auiEncounter[14] = NOT_STARTED;
+                    break;
+                default:
+                    m_auiEncounter[14] = uiData;
+                    break;
+            }
             break;
     }
 
@@ -474,10 +506,14 @@ bool AreaTrigger_at_naxxramas(Player* pPlayer, AreaTriggerEntry* pAt)
 {
     if (pAt->id == AREATRIGGER_KELTHUZAD)
     {
+        if (pPlayer->isDead())
+            return false;
+
         if (instance_naxxramas* pInstance = (instance_naxxramas*)pPlayer->GetInstanceData())
         {
             if (pInstance->GetData(TYPE_KELTHUZAD) == NOT_STARTED)
             {
+                pInstance->SetData(TYPE_KELTHUZAD, SPECIAL);
                 pInstance->SetChamberCenterCoords(pAt->x, pAt->y, pAt->z);
             }
         }
