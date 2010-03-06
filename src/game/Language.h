@@ -89,7 +89,9 @@ enum MangosStrings
 	LANG_SYSTEMMESSAGE_MODERATOR        = 63,
     LANG_SYSTEMMESSAGE_GAMEMASTER       = 64,
     LANG_SYSTEMMESSAGE_ADMINISTRATOR    = 65,
-    // Room for more level 0              66-99 not used
+	LANG_BAN_WORLD_ANNOUNCE             = 66,
+    LANG_PERMBAN_WORLD_ANNOUNCE         = 67,
+    // Room for more level 0              68-99 not used
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,
