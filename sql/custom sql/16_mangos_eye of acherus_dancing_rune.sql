@@ -1,3 +1,5 @@
+--- Eye Of Acherus
+
 UPDATE `creature_template` SET `modelid_A` = 16925, `modelid_H` = 16925, `scale` = 2, `unit_flags` = 33554432, `flags_extra` = 0 WHERE `entry` IN (28525,28542,28543,28544);
 
 UPDATE `creature_template` SET `ScriptName` = 'npc_eye_of_acherus' WHERE `entry` = 28511;
@@ -19,3 +21,10 @@ DELETE FROM `creature_template_addon` WHERE `entry` IN (28525,28542,28543,28544,
 INSERT INTO `creature_template_addon`(`entry`,`auras`) values (28525,'64328 0'),(28542,'64328 0'),(28543,'64328 0'),(28544,'64328 0');
 
 INSERT INTO `creature_template_addon` (`entry`, `moveflags`) VALUES (28511, 33562624);
+
+--- Dancing Rune Weapon
+
+DELETE FROM `spell_proc_event` WHERE `entry` IN (49028);
+INSERT INTO `spell_proc_event` VALUES
+(49028, 0x00, 0, 0x00000000, 0x00000000, 0x00000000, 0x00010010, 0x00010000, 0.000000, 0.000000, 0);
+update creature_template set `modelid_A` = '11686', ScriptName='npc_runeblade' where entry=27893;
