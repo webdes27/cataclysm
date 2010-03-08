@@ -380,6 +380,10 @@ class ChatHandler
         bool HandleReloadQuestPOICommand(const char* args);
         bool HandleReloadQuestStartScriptsCommand(const char* args);
         bool HandleReloadQuestTemplateCommand(const char* args);
+		bool HandleReloadCreatureTemplateCommand(const char* args);
+		bool HandleReloadItemTemplateCommand(const char* args);
+		bool HandleReloadGameobjectTemplateCommand(const char* args);
+		bool HandleReloadCreatureAddonsCommand(const char* args);
         bool HandleReloadReservedNameCommand(const char*);
         bool HandleReloadSkillDiscoveryTemplateCommand(const char* args);
         bool HandleReloadSkillExtraItemTemplateCommand(const char* args);

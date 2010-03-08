@@ -73,6 +73,10 @@ bool ChatHandler::HandleReloadAllCommand(const char*)
     HandleReloadReservedNameCommand("");
     HandleReloadMangosStringCommand("");
     HandleReloadGameTeleCommand("");
+	HandleReloadCreatureTemplateCommand("");
+	HandleReloadItemTemplateCommand("");
+	HandleReloadGameobjectTemplateCommand("");
+	HandleReloadCreatureAddonsCommand("");
     return true;
 }
 
@@ -337,6 +341,42 @@ bool ChatHandler::HandleReloadQuestTemplateCommand(const char*)
     sLog.outString( "Re-Loading GameObjects for quests..." );
     sObjectMgr.LoadGameObjectForQuests();
     SendGlobalSysMessage("Data GameObjects for quests reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadCreatureTemplateCommand(const char*)
+{
+    sLog.outString( "Re-Loading Creature Templates..." );
+	SendGlobalSysMessage("Initialized reload of table 'creature_template', server might experience some lag.");
+    sObjectMgr.LoadCreatureTemplates();
+    SendGlobalSysMessage("Table `creature_template` reloaded successfully.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadItemTemplateCommand(const char*)
+{
+    sLog.outString( "Re-Loading Item Templates..." );
+	SendGlobalSysMessage("Initialized reload of table 'item_template', server might experience some lag.");
+    sObjectMgr.LoadItemPrototypes();
+    SendGlobalSysMessage("Table `item_template` reloaded successfully.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadGameobjectTemplateCommand(const char*)
+{
+    sLog.outString( "Re-Loading Gameobject Templates..." );
+	SendGlobalSysMessage("Initialized reload of table 'gameobject_template', server might experience some lag.");
+    sObjectMgr.LoadGameobjects();
+    SendGlobalSysMessage("Table `gameobject_template` reloaded successfully.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadCreatureAddonsCommand(const char*)
+{
+    sLog.outString( "Re-Loading Addons..." );
+	SendGlobalSysMessage("Initialized reload of table 'creature_addon' and 'creature_template_addon', server might experience some lag.");
+    sObjectMgr.LoadCreatureAddons();
+    SendGlobalSysMessage("Table `creature_template_addon | creature_addon` reloaded successfully.");
     return true;
 }
 
