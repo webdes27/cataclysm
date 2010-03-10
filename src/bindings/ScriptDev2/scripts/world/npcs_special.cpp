@@ -1012,6 +1012,50 @@ CreatureAI* GetAI_npc_guardian(Creature* pCreature)
     return new npc_guardianAI(pCreature);
 }
 
+/*######
+## npc_mirror_image
+######
+
+enum
+{
+   SPELL_FROSTBOLT         = 59638,
+   SPELL_FIREBALL          = 59637
+};
+
+struct MANGOS_DLL_DECL npc_mirror_imageAI : public ScriptedAI
+{
+    npc_mirror_imageAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+
+	uint32 m_uiFrostBoltTimer;
+
+    void Reset()
+    {
+		//m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+		m_uiFrostBoltTimer = 1000;
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (m_uiFrostBoltTimer < uiDiff)
+        {
+//            m_creature->CastSpell(m_creature->getVictim(),SPELL_FROSTBOLT, true);
+//            m_creature->resetAttackTimer();
+			if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_FROSTBOLT) == CAST_OK)
+                m_uiFrostBoltTimer = urand(3600, 4000);
+        }
+		else
+            m_uiFrostBoltTimer -= uiDiff;
+    }
+};
+
+CreatureAI* GetAI_npc_mirror_image(Creature* pCreature)
+{
+    return new npc_mirror_imageAI(pCreature);
+}*/
+
 /*########
 # npc_innkeeper
 #########*/
@@ -1756,6 +1800,11 @@ void AddSC_npcs_special()
     newscript = new Script;
     newscript->Name = "npc_guardian";
     newscript->GetAI = &GetAI_npc_guardian;
+    newscript->RegisterSelf();
+
+	newscript = new Script;
+    newscript->Name = "npc_mirror_image";
+    newscript->GetAI = &GetAI_npc_mirror_image;
     newscript->RegisterSelf();
 
     newscript = new Script;
