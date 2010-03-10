@@ -6544,6 +6544,30 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                 spellId3 = 24397;
                 spellId4 = 26592;
             }
+			// Freezing Trap Effect
+            else if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000008))
+            {
+                if(!apply)
+                {
+                    Unit* caster = GetCaster();
+                    if(!caster)
+                        return;
+
+                    Unit::AuraList const& dummyAuras = caster->GetAurasByType(SPELL_AURA_DUMMY);
+                    for(Unit::AuraList::const_iterator itr = dummyAuras.begin(); itr != dummyAuras.end(); ++itr)
+                    {
+                        // Glyph of Freezing Trap
+                        if ((*itr)->GetSpellProto()->Id == 56845)
+                        {
+                            cast_at_remove = true;
+                            spellId1 = 61394;
+                            break;
+                        }
+                    }
+                }
+                else
+                    return;
+            }
             // Aspect of the Dragonhawk dodge
             else if (GetSpellProto()->SpellFamilyFlags2 & 0x00001000)
             {
