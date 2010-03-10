@@ -1801,11 +1801,11 @@ void AddSC_npcs_special()
     newscript->Name = "npc_guardian";
     newscript->GetAI = &GetAI_npc_guardian;
     newscript->RegisterSelf();
-
+/*
 	newscript = new Script;
     newscript->Name = "npc_mirror_image";
     newscript->GetAI = &GetAI_npc_mirror_image;
-    newscript->RegisterSelf();
+    newscript->RegisterSelf();*/
 
     newscript = new Script;
     newscript->Name = "npc_innkeeper";
