@@ -1230,11 +1230,20 @@ bool Aura::_RemoveAura()
         }
 
         // reset cooldown state for spells
-        if(caster && caster->GetTypeId() == TYPEID_PLAYER)
+        if (GetSpellProto()->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE && caster)
         {
-            if ( GetSpellProto()->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE )
+            // always send for players
+            if (caster->GetTypeId() == TYPEID_PLAYER)
+            {
                 // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
                 ((Player*)caster)->SendCooldownEvent(GetSpellProto());
+				}
+            // send to controller, if unit is player-controlled
+            if (caster->isControlledByPlayer())
+            {
+                Player* controller = (Player*)(caster->GetCharmerOrOwner());
+                controller->SendCooldownEvent(GetSpellProto(), 0, NULL, caster);
+            }
         }
     }
 
@@ -1349,6 +1358,12 @@ bool Aura::modStackAmount(int32 num)
         m_stackAmount = 0;
         return true; // need remove aura
     }
+
+	// reset charges when modding stack (there are spells using both)
+    m_procCharges = m_spellProto->procCharges;
+    Player* modOwner = GetCaster() ? GetCaster()->GetSpellModOwner() : NULL;
+    if(modOwner)
+        modOwner->ApplySpellMod(GetId(), SPELLMOD_CHARGES, m_procCharges);
 
     // Update stack amount
     SetStackAmount(stackAmount);
@@ -2428,6 +2443,42 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 }
                 break;
             }
+			case SPELLFAMILY_HUNTER:
+            {
+                if (m_spellProto->Id == 34026)              // kill command, cast spell
+                {
+                    Unit* p_caster = GetCaster();
+                    if(!p_caster || p_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // check pet
+                    if( !p_caster->GetPet() )
+                    {
+                        Spell::SendCastResult((Player*)p_caster, m_spellProto, 0, SPELL_FAILED_NO_PET);
+                        ((Player*)p_caster)->RemoveSpellCooldown(m_spellProto->Id, true);
+                        SetAuraDuration(0);
+                        return;
+                    }
+                    // caster spellmods (+ pet's dummy aura)
+                    p_caster->CastSpell(p_caster,34027,true,NULL,this);
+
+                    // set 3 stacks for all auras
+                    if (Aura* owner_aura = p_caster->GetAura(34027,EFFECT_INDEX_0))
+                        owner_aura->SetStackAmount(3);
+                    if (Aura* owner_aura = p_caster->GetAura(34027,EFFECT_INDEX_1))
+                        owner_aura->SetStackAmount(3);
+                    if (Aura* pet_aura = p_caster->GetPet()->GetDummyAura(58914))
+                        pet_aura->SetStackAmount(3);
+
+					// check for Focused Fire
+                    if (p_caster->GetDummyAura(35029))
+                        p_caster->CastSpell(p_caster, 60110,true);
+                    else if (p_caster->GetDummyAura(35030))
+                        p_caster->CastSpell(p_caster, 60113, true);
+                    return;
+                }
+                break;
+            }
             case SPELLFAMILY_SHAMAN:
             {
                 // Tidal Force
@@ -2578,6 +2629,16 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 m_target->CastSpell(m_target, 58601, true);
                 // Parachute
                 m_target->CastSpell(m_target, 45472, true);
+                return;
+            }
+			case 58914:                                     // kill command, pet aura
+            {
+                // remove owner auras
+                Unit* caster = GetCaster();
+                if(!caster)
+                    return;
+                // the spellmod aura (owner)
+                caster->RemoveAurasDueToSpell(34027);
                 return;
             }
         }
@@ -6551,16 +6612,35 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
             break;
         case SPELLFAMILY_HUNTER:
         {
-            // The Beast Within and Bestial Wrath - immunity
-            if (GetId() == 19574 || GetId() == 34471)
+            switch (GetId())
             {
-                spellId1 = 24395;
-                spellId2 = 24396;
-                spellId3 = 24397;
-                spellId4 = 26592;
+                case 19574:                                 // Bestial Wrath - immunity
+                case 34471:                                 // The Beast Within - immunity
+                {
+                    spellId1 = 24395;
+                    spellId2 = 24396;
+                    spellId3 = 24397;
+                    spellId4 = 26592;
+                    break;
+                }
+                case 34027:                                 // Kill Command, owner aura (spellmods)
+                {
+                    if (apply)
+                        return;
+                    spellId1 = 34026;                       // Kill Command, owner casting aura
+					spellId2 = 60110;                       // Kill Command, Focused Fire addition
+                    spellId3 = 60113;
+                    Unit* pet = m_target->GetPet();
+                    if(!pet)
+                        break;
+                    pet->RemoveAurasDueToSpell(58914);
+                    break;
+                }
+                default:
+                    break;
             }
 			// Freezing Trap Effect
-            else if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000008))
+            if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000008))
             {
                 if(!apply)
                 {
@@ -6584,7 +6664,7 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                     return;
             }
             // Aspect of the Dragonhawk dodge
-            else if (GetSpellProto()->SpellFamilyFlags2 & 0x00001000)
+            if (GetSpellProto()->SpellFamilyFlags2 & 0x00001000)
             {
                 spellId1 = 61848;
 
@@ -6592,8 +6672,6 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                 if (apply && m_target->GetTypeId()==TYPEID_PLAYER)
                     ((Player*)m_target)->RemoveSpellCooldown(61848);
             }
-            else
-                return;
             break;
         }
         case SPELLFAMILY_PALADIN:

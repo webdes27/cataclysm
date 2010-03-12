@@ -6519,7 +6519,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
             switch(m_spellInfo->Id)
             {
 				// Raise Dead
-                case 46584:
+                case 46584:                                 // Raise Dead
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
@@ -6535,8 +6535,8 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     }
 
                     // check if "Glyph of Raise Dead" ,corpse- or "Corpse Dust" is available
-                    bool canCast = p_caster->HasItemCount(37201,1);
-                    if (!canCast)
+                    bool canCast = p_caster->CanNoReagentCast(m_spellInfo) || FindCorpseUsing<MaNGOS::RaiseDeadObjectCheck>();
+                    if (!canCast && p_caster->HasItemCount(37201,1))
                     {
                         p_caster->DestroyItemCount(37201, 1, true);
                         canCast = true;

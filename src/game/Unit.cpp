@@ -5517,6 +5517,19 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     owner->CastSpell(owner,58227,true,castItem,triggeredByAura);
                     return true;
                 }
+				// kill command (pet aura proc)
+                case 58914:
+                {
+                    // try to exclude procs from hot's (spirit bonde)
+                    if (IsPositiveSpell(procSpell->Id))
+                        return false;
+                    Unit* owner = GetOwner();
+                    if( !owner || owner->GetTypeId() != TYPEID_PLAYER )
+                        return true;
+                    // reduce the owner's aura stack (spellmods)
+                    owner->RemoveSingleSpellAurasFromStack(34027);
+                    return true;
+                }
                 // Glyph of Life Tap
                 case 63320:
                     triggered_spell_id = 63321;
@@ -8666,6 +8679,26 @@ bool Unit::IsNeutralToAll() const
         return false;
 
     return my_faction->IsNeutralToAll();
+}
+
+bool Unit::isControlledByPlayer() const
+{
+    // this method will return true, if this unit is directly controlled by a player,
+    // that means player has a pet cast bar
+    Unit* owner = GetCharmerOrOwner();
+
+    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+        return false;
+
+    // player-charmed units always have pet action bar (hope this is correct)
+    if (isCharmed())
+        return true;
+
+    if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet() &&
+        ((Pet*)this)->isControlled())
+        return true;
+
+    return false;
 }
 
 bool Unit::Attack(Unit *victim, bool meleeAttack)
