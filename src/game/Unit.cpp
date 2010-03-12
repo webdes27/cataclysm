@@ -9421,19 +9421,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     // Custom scripted damage
     switch(spellProto->SpellFamilyName)
     {
-		case SPELLFAMILY_PRIEST:
-        {
-            // Glyph of Shadow Word: Pain
-            if (spellProto->SpellFamilyFlags & UI64LIT(0x00000800000))
-            {
-                Aura *dummy = GetDummyAura(55687);
-                if ( dummy && pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x0000000000008000LL, 0, GetGUID()))
-                    DoneTotalMod *= (dummy->GetModifier()->m_amount+100.0f)/100.0f;
-            }
-
-            break;
-        }
-        case SPELLFAMILY_MAGE:
+		        case SPELLFAMILY_MAGE:
         {
             // Ice Lance
             if (spellProto->SpellIconID == 186)
@@ -9487,6 +9475,13 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, UI64LIT(0x00100000), NULL))
                     if (Aura *aur = GetAura(55692, EFFECT_INDEX_0))
                         DoneTotalMod *= (aur->GetModifier()->m_amount+100.0f) / 100.0f;
+            }
+			// Glyph of Shadow Word: Pain
+            if (spellProto->SpellFamilyFlags & UI64LIT(0x00000800000))
+            {
+                Aura *dummy = GetDummyAura(55687);
+                if ( dummy && pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x0000000000008000LL, 0, GetGUID()))
+                    DoneTotalMod *= (dummy->GetModifier()->m_amount+100.0f)/100.0f;
             }
             break;
         }
