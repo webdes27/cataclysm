@@ -1,4 +1,4 @@
---- Eye Of Acherus
+## Eye Of Acherus
 
 UPDATE `creature_template` SET `modelid_A` = 16925, `modelid_H` = 16925, `scale` = 2, `unit_flags` = 33554432, `flags_extra` = 0 WHERE `entry` IN (28525,28542,28543,28544);
 
@@ -22,7 +22,7 @@ INSERT INTO `creature_template_addon`(`entry`,`auras`) values (28525,'64328 0'),
 
 INSERT INTO `creature_template_addon` (`entry`, `moveflags`) VALUES (28511, 33562624);
 
---- Dancing Rune Weapon
+## Dancing Rune Weapon
 
 DELETE FROM `spell_proc_event` WHERE `entry` IN (49028);
 INSERT INTO `spell_proc_event` VALUES

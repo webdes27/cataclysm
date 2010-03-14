@@ -10,12 +10,12 @@ INSERT INTO `spell_proc_event` ( `entry` , `SpellFamilyName` , `SpellFamilyMask0
 
 DELETE FROM `spell_proc_event` WHERE `entry` = 58375;
 INSERT INTO `spell_proc_event` VALUES (58375,0x01,4,0x00000000,0x00000200,0x00000000,0x00000010,0x00000000,0.000000,0.000000,0);
--- Glyph Of Blocking
+## Glyph Of Blocking
 
 DELETE FROM `spell_proc_event` WHERE `entry` = 58070;
 INSERT INTO `spell_proc_event` VALUES (58070,0x20,5,0x00004000,0x00000000,0x00000000,0x00040000,0x00000000,0.000000,5.000000,0);
---Glyph of Drain Soul
+## Glyph of Drain Soul
 
 DELETE FROM `spell_proc_event` WHERE `entry` IN (57870);
 INSERT INTO `spell_proc_event` VALUES
-(57870, 0x00000000, 9, 0x00800000, 0x00000000, 0x00000000, 0x00040000, 0x00000000, 0.000000, 0.000000, 0); -- Glyph of Mend Pet
+(57870, 0x00000000, 9, 0x00800000, 0x00000000, 0x00000000, 0x00040000, 0x00000000, 0.000000, 0.000000, 0); ## Glyph of Mend Pet
