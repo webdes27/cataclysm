@@ -2623,14 +2623,14 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         ((Player*)caster)->CastSpell( caster, 50001, true );
 				return;
             }
-            case 58600:                                     // Restricted Flight Area
+            /*case 58600:                                     // Restricted Flight Area
             {
                 // Remove Flight Auras
                 m_target->CastSpell(m_target, 58601, true);
                 // Parachute
                 m_target->CastSpell(m_target, 45472, true);
                 return;
-            }
+            }*/
 			case 58914:                                     // kill command, pet aura
             {
                 // remove owner auras
