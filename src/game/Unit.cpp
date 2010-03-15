@@ -7999,6 +7999,12 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 basepoints[0] = triggerAmount * damage / 100;
                 trigger_spell_id = 50475;
             }
+			//Don't proc any spell on self
+            if (procSpell->Id == 45524)
+            {
+                if(pVictim == this)
+                   return false;
+            }
             break;
         }
         default:
@@ -8986,8 +8992,11 @@ Pet* Unit::GetPet() const
 {
     if(uint64 pet_guid = GetPetGUID())
     {
-        if(Pet* pet = GetMap()->GetPet(pet_guid))
-            return pet;
+        if(IsInWorld())
+        {
+            if(Pet* pet = GetMap()->GetPet(pet_guid))
+                return pet;
+        }
 
         sLog.outError("Unit::GetPet: Pet %u not exist.",GUID_LOPART(pet_guid));
         const_cast<Unit*>(this)->SetPet(0);
@@ -9485,6 +9494,13 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
+			// Glyph of Unholy Blight
+            if (spellProto->Id == 50536) 
+            { 
+                if (Aura *glyphAura = GetDummyAura(63332)) 
+                    DoneTotalMod *= (glyphAura->GetModifier()->m_amount + 100.0f)/ 100.0f; 
+                break; 
+            }
             // Icy Touch, Howling Blast and Frost Strike
             if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000600000002))
             {
@@ -9586,7 +9602,20 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             coeff = bonus->direct_damage * LvlPenalty * stack;
 
         if (bonus->ap_bonus)
-            DoneTotal += int32(bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack);
+            {
+           float total_bonus = bonus->ap_bonus;
+           if (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->getClass() == CLASS_DEATH_KNIGHT)
+           {
+               uint32 impurity_id[5] = {49220,49633,49635,49636,49638};
+               for (int i = 0; i < 5; ++i)
+                   if (((Player*)this)->HasSpell(impurity_id[i]))
+                   {
+                       total_bonus += bonus->ap_bonus * (sSpellStore.LookupEntry(impurity_id[i])->EffectBasePoints[EFFECT_INDEX_0] + 1) / 100.0f;
+                       break;
+                   }
+           }
+           DoneTotal += int32(total_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack);
+        }
 
         DoneTotal  += int32(DoneAdvertisedBenefit * coeff * SpellModSpellDamage);
         TakenTotal += int32(TakenAdvertisedBenefit * coeff);
@@ -9674,7 +9703,7 @@ int32 Unit::SpellBaseDamageBonus(SpellSchoolMask schoolMask)
         }
 
     }
-    return DoneAdvertisedBenefit;
+    return DoneAdvertisedBenefit > 0 ? DoneAdvertisedBenefit : 0;
 }
 
 int32 Unit::SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit *pVictim)
@@ -9698,7 +9727,7 @@ int32 Unit::SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit *pVic
             TakenAdvertisedBenefit += (*i)->GetModifier()->m_amount;
     }
 
-    return TakenAdvertisedBenefit;
+    return TakenAdvertisedBenefit > 0 ? TakenAdvertisedBenefit : 0;
 }
 
 bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType)
@@ -10049,7 +10078,20 @@ int32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, int32
             coeff = bonus->direct_damage * LvlPenalty * stack;
 
         if (bonus->ap_bonus)
-            DoneTotal += int32(bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack);
+            {
+           float total_bonus = bonus->ap_bonus;
+           if (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->getClass() == CLASS_DEATH_KNIGHT)
+           {
+               uint32 impurity_id[5] = {49220,49633,49635,49636,49638};
+               for (int i = 0; i < 5; ++i)
+                   if (((Player*)this)->HasSpell(impurity_id[i]))
+                   {
+                       total_bonus += bonus->ap_bonus * (sSpellStore.LookupEntry(impurity_id[i])->EffectBasePoints[EFFECT_INDEX_0] + 1) / 100.0f;
+                       break;
+                   }
+           }
+           DoneTotal += int32(total_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack);
+        }
 
         DoneTotal  += int32(DoneAdvertisedBenefit * coeff * SpellModSpellDamage);
         TakenTotal += int32(TakenAdvertisedBenefit * coeff);
@@ -11887,7 +11929,7 @@ void Unit::IncrDiminishing(DiminishingGroup group)
 
 void Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Unit* caster,DiminishingLevels Level, int32 limitduration)
 {
-    if(duration == -1 || group == DIMINISHING_NONE || caster->IsFriendlyTo(this) )
+    if(duration == -1 || group == DIMINISHING_NONE)
         return;
 
     // Duration of crowd control abilities on pvp target is limited by 10 sec. (2.2.0)
