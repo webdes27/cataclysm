@@ -8691,26 +8691,6 @@ bool Unit::IsNeutralToAll() const
     return my_faction->IsNeutralToAll();
 }
 
-bool Unit::isControlledByPlayer() const
-{
-    // this method will return true, if this unit is directly controlled by a player,
-    // that means player has a pet cast bar
-    Unit* owner = GetCharmerOrOwner();
-
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return false;
-
-    // player-charmed units always have pet action bar (hope this is correct)
-    if (isCharmed())
-        return true;
-
-    if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet() &&
-        ((Pet*)this)->isControlled())
-        return true;
-
-    return false;
-}
-
 bool Unit::Attack(Unit *victim, bool meleeAttack)
 {
     if(!victim || victim == this)
@@ -9704,7 +9684,7 @@ int32 Unit::SpellBaseDamageBonus(SpellSchoolMask schoolMask)
         }
 
     }
-    return DoneAdvertisedBenefit > 0 ? DoneAdvertisedBenefit : 0;
+    return DoneAdvertisedBenefit;
 }
 
 int32 Unit::SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit *pVictim)
@@ -9728,7 +9708,7 @@ int32 Unit::SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit *pVic
             TakenAdvertisedBenefit += (*i)->GetModifier()->m_amount;
     }
 
-    return TakenAdvertisedBenefit > 0 ? TakenAdvertisedBenefit : 0;
+    return TakenAdvertisedBenefit;
 }
 
 bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType)

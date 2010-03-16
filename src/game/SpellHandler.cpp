@@ -321,7 +321,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             return;
         }
     }
-    else
+    else if(mover && mover->GetTypeId() == TYPEID_UNIT)
     {
         // not have spell in spellbook or spell passive and not casted by client
         if (!((Creature*)mover)->HasSpell(spellId) || IsPassiveSpell(spellId) )
@@ -481,7 +481,8 @@ void WorldSession::HandlePetCancelAuraOpcode( WorldPacket& recvPacket)
     }
 
     pet->RemoveAurasDueToSpell(spellId);
-	pet->AddSpellAndCategoryCooldowns(spellInfo, 0);
+
+	pet->AddCreatureSpellCooldown(spellId);
 }
 
 void WorldSession::HandleCancelGrowthAuraOpcode( WorldPacket& /*recvPacket*/)

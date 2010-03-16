@@ -1230,20 +1230,11 @@ bool Aura::_RemoveAura()
         }
 
         // reset cooldown state for spells
-        if (GetSpellProto()->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE && caster)
+        if(caster && caster->GetTypeId() == TYPEID_PLAYER)
         {
-            // always send for players
-            if (caster->GetTypeId() == TYPEID_PLAYER)
-            {
+            if ( GetSpellProto()->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE )
                 // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
                 ((Player*)caster)->SendCooldownEvent(GetSpellProto());
-				}
-            // send to controller, if unit is player-controlled
-            if (caster->isControlledByPlayer())
-            {
-                Player* controller = (Player*)(caster->GetCharmerOrOwner());
-                controller->SendCooldownEvent(GetSpellProto(), 0, NULL, caster);
-            }
         }
     }
 
@@ -2623,14 +2614,14 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         ((Player*)caster)->CastSpell( caster, 50001, true );
 				return;
             }
-            /*case 58600:                                     // Restricted Flight Area
+            case 58600:                                     // Restricted Flight Area
             {
                 // Remove Flight Auras
                 m_target->CastSpell(m_target, 58601, true);
                 // Parachute
                 m_target->CastSpell(m_target, 45472, true);
                 return;
-            }*/
+            }
 			case 58914:                                     // kill command, pet aura
             {
                 // remove owner auras
