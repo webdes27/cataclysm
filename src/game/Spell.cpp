@@ -2461,7 +2461,8 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
     // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
     if ( !m_IsTriggeredSpell && isSpellBreakStealth(m_spellInfo) )
     {
-        m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
+        m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+        m_caster->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
     }
 
     // add non-triggered (with cast time and without)
