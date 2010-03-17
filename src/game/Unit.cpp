@@ -7320,7 +7320,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             {
                 if (!target || !target->isAlive() || this->GetTypeId() != TYPEID_PLAYER)
                     return false;
-
+                
                 // get highest rank of Death Coil spell
                 const PlayerSpellMap& sp_list = ((Player*)this)->GetSpellMap();
                 for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
