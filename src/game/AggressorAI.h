@@ -36,7 +36,6 @@ class MANGOS_DLL_DECL AggressorAI : public CreatureAI
 
         explicit AggressorAI(Creature *c);
 
-		void JustReachedHome();
         void MoveInLineOfSight(Unit *);
         void AttackStart(Unit *);
         void EnterEvadeMode();
