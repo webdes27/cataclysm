@@ -41,7 +41,7 @@ bool GossipHello_TeleNPC(Player* pPlayer, Creature* pCreature)
 	bool EnableResSickness = SD2Config.GetBoolDefault("TeleNPC.EnableRemoveResSickness", true);
 	bool EnableAlliancevsHordePvP = SD2Config.GetBoolDefault("TeleNPC.EnableAlliancevsHordePvP", true);
 	bool EnablePlayerTools = SD2Config.GetBoolDefault("TeleNPC.EnablePlayerTools", true);
-	bool EnableInnkeeper = SD2Config.GetBoolDefault("TeleNPC.EnableInnkeeper", true);
+	bool EnableInnkeeper = SD2Config.GetBoolDefault("TeleNPC.EnableInnkeeper", false);
 	bool EnableShoppingMall = SD2Config.GetBoolDefault("TeleNPC.EnableShoppingMall", false);
 	bool EnableHarmonyGuildShip = SD2Config.GetBoolDefault("TeleNPC.HarmonyGuildShip", false);
 	bool EnableUnityGuildShip = SD2Config.GetBoolDefault("TeleNPC.UnityGuildShip", false);
@@ -98,7 +98,7 @@ if(!SD2Config.SetSource(_SCRIPTDEV2_CONFIG,true))
 bool EnableResSickness = SD2Config.GetBoolDefault("TeleNPC.EnableRemoveResSickness", true);
 bool EnableAlliancevsHordePvP = SD2Config.GetBoolDefault("TeleNPC.EnableAlliancevsHordePvP", true);
 bool EnablePlayerTools = SD2Config.GetBoolDefault("TeleNPC.PlayerTools", true);
-bool EnableInnkeeper = SD2Config.GetBoolDefault("TeleNPC.EnableInnkeeper", true);
+bool EnableInnkeeper = SD2Config.GetBoolDefault("TeleNPC.EnableInnkeeper", false);
 bool EnableShoppingMall = SD2Config.GetBoolDefault("TeleNPC.EnableShoppingMall", false);
 bool EnableHarmonyGuildShip = SD2Config.GetBoolDefault("TeleNPC.HarmonyGuildShip", false);
 bool EnableUnityGuildShip = SD2Config.GetBoolDefault("TeleNPC.UnityGuildShip", false);
