@@ -7159,6 +7159,16 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
 			// Flametongue Weapon
             if (dummySpell->SpellFamilyFlags & UI64LIT(0x200000))
             {
+				//some checks
+				if(GetTypeId()!=TYPEID_PLAYER)
+                    return false;
+
+                if(!castItem || !castItem->IsEquipped())
+                    return false;
+
+				if(!pVictim || !pVictim->isAlive())
+                    return false;
+
                 triggered_spell_id = 10444;
                 basepoints[0] = int32(triggerAmount * GetAttackTime(BASE_ATTACK) / (100 * IN_MILISECONDS));
                 break;
