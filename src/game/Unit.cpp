@@ -442,6 +442,10 @@ void Unit::BuildHeartBeatMsg(WorldPacket *data) const
         ? ((Player const*)this)->m_movementInfo.GetMovementFlags()
         : MOVEFLAG_NONE;
 
+	//Flying NPCs hack
+    if(GetTypeId()!=TYPEID_PLAYER && ((Creature*)this)->canFly())
+        move_flags = MOVEFLAG_FLYING;
+
     data->Initialize(MSG_MOVE_HEARTBEAT, 32);
     *data << GetPackGUID();
     *data << uint32(move_flags);                            // movement flags
