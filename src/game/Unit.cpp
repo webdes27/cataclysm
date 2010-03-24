@@ -6970,7 +6970,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 triggered_spell_id = 379;
                 break;
             }
-			// Flametongue Weapon (Passive)
+			// Flametongue Weapon
             if (dummySpell->SpellFamilyFlags & UI64LIT(0x200000))
             {
                 if(GetTypeId()!=TYPEID_PLAYER)
@@ -7155,23 +7155,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 if(Spell* spell = GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     spell->AddTriggeredSpell(63685);
                 return true;
-            }
-			// Flametongue Weapon
-            if (dummySpell->SpellFamilyFlags & UI64LIT(0x200000))
-            {
-				//some checks
-				if(GetTypeId()!=TYPEID_PLAYER)
-                    return false;
-
-                if(!castItem || !castItem->IsEquipped())
-                    return false;
-
-				if(!pVictim || !pVictim->isAlive())
-                    return false;
-
-                triggered_spell_id = 10444;
-                basepoints[0] = int32(triggerAmount * GetAttackTime(BASE_ATTACK) / (100 * IN_MILISECONDS));
-                break;
             }
             break;
         }
