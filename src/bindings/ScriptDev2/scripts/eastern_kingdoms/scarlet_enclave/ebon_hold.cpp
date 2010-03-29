@@ -1125,25 +1125,23 @@ struct MANGOS_DLL_DECL npc_eye_of_acherusAI : public ScriptedAI
 
 	void JustDied(Unit*u)
 	{
-        if(m_creature->GetCharmer()->GetTypeId()!= TYPEID_PLAYER)return;
-        Player* pl = ((Player*)m_creature->GetCharmer());
-
-            m_creature->GetMap()->CreatureRelocation(m_creature, 2325.0f, -5660.0f, 427.0f, 3.83f);
-            pl->RemoveAurasDueToSpell(51852);
-            pl->InterruptSpell(CURRENT_CHANNELED_SPELL);
-            pl->SetClientControl(m_creature, 0);
-            pl->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-            pl->SetCharm(NULL);
-            pl->SetFarSightGUID(0);
-            pl->SetMover(NULL);
-            pl->RemovePetActionBar();
-            m_creature->SetCharmerGUID(0);
+        /*m_creature->GetMap()->CreatureRelocation(m_creature, 2325.0f, -5660.0f, 427.0f, 3.83f);
+		m_creature->RemoveAurasDueToSpellByCancel(51852);//*/
+		m_creature->CleanupsBeforeDelete();
+		m_creature->AddObjectToRemoveList();
 	}
 
-    void AttackStart(Unit *)
+    void AttackStart(Unit *pWho)
     {
-        m_creature->AttackStop();
-        m_creature->SetInCombatState(false)	;
+        if (!pWho)
+        return;
+
+		if (m_creature->Attack(pWho, true))
+		{
+			m_creature->AddThreat(pWho);
+			m_creature->SetInCombatWith(pWho);
+			pWho->SetInCombatWith(m_creature);		
+		}
     }
 
     void MovementInform(uint32 uiType, uint32 uiPointId)
@@ -1158,8 +1156,8 @@ struct MANGOS_DLL_DECL npc_eye_of_acherusAI : public ScriptedAI
             {
             char * text1 = "The Eye of Acherus is in your control";
             Eye1->MonsterTextEmote(text1, Eye1->GetGUID(), true);
-            //m_creature->RemoveMonsterMoveFlag(MONSTER_MOVE_SPLINE_FLY);
-            m_creature->SetSpeedRate(MOVE_FLIGHT, 2.8f, true);
+            /*/m_creature->RemoveMonsterMoveFlag(MONSTER_MOVE_SPLINE_FLY);
+            m_creature->SetSpeedRate(MOVE_FLIGHT, 2.8f, true);*/
             m_creature->CastSpell(m_creature, 51890, true);
             }
         }
@@ -1168,23 +1166,28 @@ struct MANGOS_DLL_DECL npc_eye_of_acherusAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (StartTimer < uiDiff && !Active)
-        {
-            EyeGuid = m_creature->GetGUID();
-            Unit *Eye = Unit::GetUnit((*m_creature), EyeGuid);
-            if (Eye)
-            {
-                char * text = "The Eye of Acherus launches towards its destination";
-                Eye->MonsterTextEmote(text, Eye->GetGUID(), true);
-                //m_creature->SetMonsterMoveFlags(MONSTER_MOVE_SPLINE_FLY);
-                m_creature->SetSpeedRate(MOVE_FLIGHT, 6.8f, true);
-                m_creature->SetSpeedRate(MOVE_WALK, 6.8f, true);
-                m_creature->GetMotionMaster()->MovePoint(0, 1711.0f, -5820.0f, 147.0f);
-                Active = true;
-            }
-        }
-		else StartTimer -= uiDiff;
-
+		if(m_creature->isCharmed())  
+		{     
+			if (StartTimer < uiDiff && !Active)
+			{
+				EyeGuid = m_creature->GetGUID();
+				Unit *Eye = Unit::GetUnit((*m_creature), EyeGuid);
+				if (Eye)
+				{
+					char * text = "The Eye of Acherus launches towards its destination";
+					Eye->MonsterTextEmote(text, Eye->GetGUID(), true);              
+					m_creature->SetSpeedRate(MOVE_FLIGHT, 6.8f, true);             
+					m_creature->GetMotionMaster()->MovePoint(0, 1711.0f, -5820.0f, 147.0f);
+					Active = true;
+				}
+			}
+			else StartTimer -= uiDiff;
+		}
+		else
+		{
+			m_creature->CleanupsBeforeDelete();
+			m_creature->AddObjectToRemoveList();
+		}
 		DoMeleeAttackIfReady();
     }
 };

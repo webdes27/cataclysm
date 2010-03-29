@@ -245,7 +245,7 @@ class Spell
     public:
 
         void EffectEmpty(SpellEffectIndex eff_idx);
-		void EffectSummonPosessed(SpellEffectIndex eff_idx);
+		void EffectSummonPossessed(SpellEffectIndex eff_idx);
         void EffectNULL(SpellEffectIndex eff_idx);
         void EffectUnused(SpellEffectIndex eff_idx);
         void EffectDistract(SpellEffectIndex eff_idx);
