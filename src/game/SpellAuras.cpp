@@ -6610,7 +6610,7 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                         data << uint64(player->GetGUID());
                         data << uint8(0x0);                                     // flags (0x1, 0x2)
                         data << uint32(GetSpellProto()->Id);
-                        data << uint32(aurEff->GetModifier()->m_amount*IN_MILISECONDS);
+                        data << uint32(aurEff->GetModifier()->m_amount*IN_MILLISECONDS);
                         player->SendDirectMessage(&data);
                     }
                     break;
