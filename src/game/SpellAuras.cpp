@@ -3694,7 +3694,7 @@ void Aura::HandleChannelDeathItem(bool apply, bool Real)
         if( msg != EQUIP_ERR_OK )
         {
             count-=noSpaceForCount;
-            ((Player*)caster)->SendEquipError( msg, NULL, NULL, spellInfo->EffectItemType[m_effIndex] );
+            ((Player*)caster)->SendEquipError( msg, NULL, NULL, spellInfo->EffectItemType[m_effIndex]);
             if (count==0)
                 return;
         }
@@ -4605,6 +4605,7 @@ void Aura::HandleAuraModDecreaseSpeed(bool apply, bool Real)
         }
     }
 
+	m_target->UpdateSpeed(MOVE_WALK, true);
     m_target->UpdateSpeed(MOVE_RUN, true);
     m_target->UpdateSpeed(MOVE_SWIM, true);
     m_target->UpdateSpeed(MOVE_FLIGHT, true);
@@ -4616,6 +4617,7 @@ void Aura::HandleAuraModUseNormalSpeed(bool /*apply*/, bool Real)
     if(!Real)
         return;
 
+	m_target->UpdateSpeed(MOVE_WALK, true);
     m_target->UpdateSpeed(MOVE_RUN, true);
     m_target->UpdateSpeed(MOVE_SWIM, true);
     m_target->UpdateSpeed(MOVE_FLIGHT, true);
@@ -8628,7 +8630,7 @@ void Aura::UnregisterSingleCastAura()
         else
         {
             sLog.outError("Couldn't find the caster of the single target aura (SpellId %u), may crash later!", GetId());
-            ASSERT(false);
+            //ASSERT(false);
         }
         m_isSingleTargetAura = false;
     }
