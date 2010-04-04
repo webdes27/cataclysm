@@ -1422,7 +1422,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         bool LoadFromDB(uint32 guid, SqlQueryHolder *holder);
 
-//        bool MinimalLoadFromDB(QueryResult *result, uint32 guid);
+        bool MinimalLoadFromDB(QueryResult *result, uint32 guid);
 
 		void Initialize(uint32 guid);                      // AHBot
 
