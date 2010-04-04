@@ -9,9 +9,9 @@ DELETE FROM areatrigger_scripts WHERE entry=3066;
 INSERT INTO areatrigger_scripts VALUES (3066,'at_ravenholdt');
 DELETE FROM areatrigger_scripts WHERE entry IN (4871, 4872, 4873);
 INSERT INTO areatrigger_scripts VALUES
-(4871,'at_warsong_grainery'),
-(4872,'at_torp_farm'),
-(4873,'at_warsong_slaughterhouse');
+(4871,'at_warsong_farms'),
+(4872,'at_warsong_farms'),
+(4873,'at_warsong_farms');
 DELETE FROM areatrigger_scripts WHERE entry BETWEEN 5284 AND 5287;
 INSERT INTO areatrigger_scripts VALUES
 (5284,'at_aldurthar_gate'),
@@ -20,6 +20,8 @@ INSERT INTO areatrigger_scripts VALUES
 (5287,'at_aldurthar_gate');
 DELETE FROM areatrigger_scripts WHERE entry=4112;
 INSERT INTO areatrigger_scripts VALUES (4112,'at_naxxramas');
+DELETE FROM areatrigger_scripts WHERE entry=5108;
+INSERT INTO areatrigger_scripts VALUES (5108,'at_stormwright_shelf');
 
 /* BATTLEGROUNDS */
 UPDATE creature_template SET ScriptName='npc_spirit_guide' WHERE entry IN (13116, 13117);
@@ -813,6 +815,7 @@ UPDATE creature_template SET ScriptName='npc_corporal_keeshan' WHERE entry=349;
 /* RUINS OF AHN'QIRAJ */
 UPDATE instance_template SET script='instance_ruins_of_ahnqiraj' WHERE map=509;
 UPDATE creature_template SET ScriptName='mob_anubisath_guardian' WHERE entry=15355;
+UPDATE creature_template SET ScriptName='boss_moam' WHERE entry=15340;
 
 /* SCARLET MONASTERY */
 UPDATE instance_template SET script='instance_scarlet_monastery' WHERE map=189;
