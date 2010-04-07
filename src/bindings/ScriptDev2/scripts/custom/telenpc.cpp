@@ -625,7 +625,7 @@ break;
 
 case 7001:// Blackrock Depths
 	pPlayer->CLOSE_GOSSIP_MENU();
-	pPlayer->TeleportTo(0, -7180.57, -920.04f, 165.49f, 5.02f);
+	pPlayer->TeleportTo(0, -7180.57f, -920.04f, 165.49f, 5.02f);
 	pPlayer->ModifyMoney(-(SD2Config.GetFloatDefault("TeleGoldCost",0)));
 break;
 
@@ -649,7 +649,7 @@ break;
 
 case 7020:// Gnomeregan
 	pPlayer->CLOSE_GOSSIP_MENU();
-	pPlayer->TeleportTo(0, -5163.32f, 927.18f, 257.158, 1.44f);
+	pPlayer->TeleportTo(0, -5163.32f, 927.18f, 257.158f, 1.44f);
 	pPlayer->ModifyMoney(-(SD2Config.GetFloatDefault("TeleGoldCost",0)));
 break;
  
