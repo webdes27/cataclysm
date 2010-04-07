@@ -5903,38 +5903,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     break;
                 }
-					// Request Second Mug 
-					// if Has Dark Brewmaiden's Brew (s47331) not dispeled by drinking Dark Brewmaiden's Brew (s47345) triggers
-					// Request Second Mug (s47344) which should force creature Ilsa Direbrew (c26764) to cast Send Second Mug (s47339)
-                case 47344:
-                {
-                    // Search Ilsa Direbrew
-                    uint32 IlsaEntry = 26764;
-                    float SpellRange = 100.0f;
-                    Creature* pCreature = NULL;
-
-                    CellPair p(MaNGOS::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
-                    Cell cell(p);
-                    cell.data.Part.reserved = ALL_DISTRICT;
-                   cell.SetNoCreate();
-
-                    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*m_caster, IlsaEntry, true, SpellRange);
-                    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_caster, pCreature, creature_check);
-
-                    TypeContainerVisitor<MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer > grid_creature_searcher(searcher);
-
-                    cell.Visit(p, grid_creature_searcher, *m_caster->GetMap(), *m_caster, SpellRange);
-
-                    // if found Ilsa alive cast Send Second Mug
-                    if (pCreature)
-                    {
-                        pCreature->InterruptNonMeleeSpells(false);
-                        pCreature->CastSpell(m_caster,47339,true);
-                    }
-                    //Dispel Triggering aura
-                    m_caster->RemoveAurasDueToSpell(47331);
-                    return;
-                }
                 case 48603:                                 // High Executor's Branding Iron
                     // Torture the Torturer: High Executor's Branding Iron Impact
                     unitTarget->CastSpell(unitTarget, 48614, true);
@@ -5958,14 +5926,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     caster->CastSpell(caster, damage, false);
                     break;
-                }
-				case 51962:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->MonsterSay("Care to try Grimbooze Thunderbrew's new jungle punch?",LANG_UNIVERSAL,NULL);
-                    return;
                 }
                 case 52751:                                 // Death Gate
                 {
