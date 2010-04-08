@@ -12750,8 +12750,7 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
                     // Cast spells that teach dual spec
                     // Both are also ImplicitTarget self and must be cast by player
                     CastSpell(this,63680,true,NULL,NULL,GetGUID());
-// temp crash fix
-//                    CastSpell(this,63624,true,NULL,NULL,GetGUID());
+					CastSpell(this,63624,true,NULL,NULL,GetGUID());
 
                     // Should show another Gossip text with "Congratulations..."
                     PlayerTalkClass->CloseGossip();
