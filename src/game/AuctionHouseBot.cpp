@@ -86,10 +86,7 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
     uint32 purpleIcount = config->GetPercents(AHB_PURPLE_I);
     uint32 orangeIcount = config->GetPercents(AHB_ORANGE_I);
     uint32 yellowIcount = config->GetPercents(AHB_YELLOW_I);
-    uint32 total = greyTGcount + whiteTGcount + greenTGcount + blueTGcount
-        + purpleTGcount + orangeTGcount + yellowTGcount
-        + whiteIcount + greenIcount + blueIcount + purpleIcount
-        + orangeIcount + yellowIcount;
+    uint32 total = greyTGcount + whiteTGcount + greenTGcount + blueTGcount + purpleTGcount + orangeTGcount + yellowTGcount + whiteIcount + greenIcount + blueIcount + purpleIcount + orangeIcount + yellowIcount;
 
     uint32 greyTGoods = 0;
     uint32 whiteTGoods = 0;
@@ -1128,9 +1125,7 @@ void AuctionHouseBot::Initialize()
         sLog.outString("loaded %d orange items", orangeItemsBin.size());
         sLog.outString("loaded %d yellow items", yellowItemsBin.size());
     }
-    sLog.outString("AuctionHouseBot> [AHBot-x001] is now loaded");
-    sLog.outString("AuctionHouseBot> updated by Xeross (Original by Naicisum, ChrisK, Paradox)");
-    sLog.outString("AuctionHouseBot> Includes AHBuyer by Kerbe and Paradox");
+    sLog.outString("AuctionHouseBot> [AH Bot] is now loaded");
 }
 
 void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char* args)

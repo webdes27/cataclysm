@@ -14638,7 +14638,7 @@ void Player::SendQuestUpdateAddCreatureOrGo( Quest const* pQuest, ObjectGuid gui
 /***                   LOAD SYSTEM                     ***/
 /*********************************************************/
 
-bool Player::MinimalLoadFromDB( QueryResult *result, uint32 guid )
+/*bool Player::MinimalLoadFromDB( QueryResult *result, uint32 guid )
 {
     bool delete_result = true;
     if (!result)
@@ -14677,9 +14677,9 @@ bool Player::MinimalLoadFromDB( QueryResult *result, uint32 guid )
     m_atLoginFlags = fields[9].GetUInt32();
 
     // I don't see these used anywhere ..
-    /*_LoadGroup();
-
-    _LoadBoundInstances();*/
+    //_LoadGroup();
+//
+    //_LoadBoundInstances();
 
     if (delete_result)
         delete result;
@@ -14692,7 +14692,7 @@ bool Player::MinimalLoadFromDB( QueryResult *result, uint32 guid )
 
     return true;
 }
-
+*/
 void Player::_LoadDeclinedNames(QueryResult* result)
 {
     if(!result)
