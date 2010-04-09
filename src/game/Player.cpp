@@ -4694,6 +4694,7 @@ void Player::RepopAtGraveyard()
             GetSession()->SendPacket(&data);
         }
     }
+	SetDisplayId(GetNativeDisplayId());
 }
 
 void Player::JoinedChannel(Channel *c)
@@ -17423,7 +17424,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     if (pet && m_temporaryUnsummonedPetNumber && m_temporaryUnsummonedPetNumber != pet->GetCharmInfo()->GetPetNumber() && mode == PET_SAVE_AS_CURRENT)
         mode = PET_SAVE_NOT_IN_SLOT;
 
-    if (mode != PET_SAVE_AS_CURRENT)
+    if(mode != PET_SAVE_AS_CURRENT)
     //if (returnreagent && pet && mode != PET_SAVE_AS_CURRENT)
     {
         //returning of reagents only for players, so best done here
