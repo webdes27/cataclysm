@@ -1471,6 +1471,7 @@ AuctionHouseBot.Seller.Enabled = 0
 AuctionHouseBot.Buyer.Enabled = 0
 AuctionHouseBot.Account = 0
 AuctionHouseBot.Character = 0
+#AuctionHouseBot.GUID = 0
 AuctionHouseBot.Items.Vendor = 0
 AuctionHouseBot.Items.Loot = 1
 AuctionHouseBot.Items.Misc = 0
