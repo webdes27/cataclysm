@@ -2,31 +2,30 @@
 #define AUCTION_HOUSE_BOT_H
 
 #include "World.h"
-#include "Player.h"
 #include "Config/ConfigEnv.h"
 #include "ace/Vector_T.h"
 
-#define AHB_GREY 0
-#define AHB_WHITE 1
-#define AHB_GREEN 2
-#define AHB_BLUE 3
-#define AHB_PURPLE 4
-#define AHB_ORANGE 5
-#define AHB_YELLOW 6
-#define AHB_GREY_TG 0
-#define AHB_WHITE_TG 1
-#define AHB_GREEN_TG 2
-#define AHB_BLUE_TG 3
-#define AHB_PURPLE_TG 4
-#define AHB_ORANGE_TG 5
-#define AHB_YELLOW_TG 6
-#define AHB_GREY_I 7
-#define AHB_WHITE_I 8
-#define AHB_GREEN_I 9
-#define AHB_BLUE_I 10
-#define AHB_PURPLE_I 11
-#define AHB_ORANGE_I 12
-#define AHB_YELLOW_I 13
+#define AHB_GREY        0
+#define AHB_WHITE       1
+#define AHB_GREEN       2
+#define AHB_BLUE        3
+#define AHB_PURPLE      4
+#define AHB_ORANGE      5
+#define AHB_YELLOW      6
+#define AHB_GREY_TG     0
+#define AHB_WHITE_TG    1
+#define AHB_GREEN_TG    2
+#define AHB_BLUE_TG     3
+#define AHB_PURPLE_TG   4
+#define AHB_ORANGE_TG   5
+#define AHB_YELLOW_TG   6
+#define AHB_GREY_I      7
+#define AHB_WHITE_I     8
+#define AHB_GREEN_I     9
+#define AHB_BLUE_I      10
+#define AHB_PURPLE_I    11
+#define AHB_ORANGE_I    12
+#define AHB_YELLOW_I    13
 
 class AHBConfig
 {
@@ -149,7 +148,7 @@ public:
     }
     uint32 GetMinItems()
     {
-        if ((minItems == 0) && (maxItems))
+        if ((minItems  == 0) && (maxItems))
             return maxItems;
         else if ((maxItems) && (minItems > maxItems))
             return maxItems;
@@ -932,14 +931,18 @@ private:
     ACE_Vector<uint32> orangeItemsBin;
     ACE_Vector<uint32> yellowItemsBin;
 
-	bool AHBSeller;
+    bool AHBSeller;
     bool AHBBuyer;
     bool BuyMethod;
     bool SellMethod;
-	
+
+    uint32 AHBplayerAccount;
+    uint32 AHBplayerGUID;
+    uint32 ItemsPerCycle;
+
     bool debug_Out;
-	
-	bool Vendor_Items;
+
+    bool Vendor_Items;
     bool Loot_Items;
     bool Other_Items;
 
@@ -957,8 +960,6 @@ private:
     time_t _lastrun_h;
     time_t _lastrun_n;
 
-    uint32 ItemsPerCycle;
-
     inline uint32 minValue(uint32 a, uint32 b) { return a <= b ? a : b; };
     void addNewAuctions(Player *AHBplayer, AHBConfig *config);
     void addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *config, WorldSession *session);
@@ -970,7 +971,7 @@ public:
     void Initialize();
     void LoadValues(AHBConfig*);
     void Commands(uint32, uint32, uint32, char*);
-    uint32 GetAHBplayerGUID() { return sWorld.getConfig(CONFIG_UINT32_AHBOT_CHARACTER_ID); };
+    uint32 GetAHBplayerGUID() { return AHBplayerGUID; };
 };
 
 #define auctionbot MaNGOS::Singleton<AuctionHouseBot>::Instance()

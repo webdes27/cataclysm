@@ -14690,9 +14690,68 @@ void Player::SendQuestUpdateAddCreatureOrGo( Quest const* pQuest, ObjectGuid gui
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         m_deathState = DEAD;
 
+    return true;*/
+bool Player::MinimalLoadFromDB( QueryResult *result, uint32 guid )
+{
+   
+    result = CharacterDatabase.PQuery("SELECT guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags,position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost,resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty, arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk,health, power1, power2, power3, power4, power5, power6, power7, specCount, activeSpec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars FROM characters WHERE guid = '%u'",guid);
+
+    if(!result)
+    {
+        sLog.outError("Player (GUID: %u) not found in table `characters`, can't load. ",guid);
+        return false;
+    }
+
+    Field *fields = result->Fetch();
+
+    uint32 dbAccountId = fields[1].GetUInt32();
+
+
+    Object::_Create( guid, 0, HIGHGUID_PLAYER );
+
+    m_name = fields[2].GetCppString();
+
+
+    // overwrite possible wrong/corrupted guid
+    SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
+
+    _LoadIntoDataField(fields[60].GetString(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE);
+    _LoadIntoDataField(fields[63].GetString(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2);
+
+    // init saved position, and fix it later if problematic
+    uint32 transGUID = fields[30].GetUInt32();
+    Relocate(fields[12].GetFloat(),fields[13].GetFloat(),fields[14].GetFloat(),fields[16].GetFloat());
+    SetLocationMapId(fields[15].GetUInt32());
+
+    // NOW player must have valid map
+    // load the player's map here if it's not already loaded
+    SetMap(sMapMgr.CreateMap(GetMapId(), this));
+
+
+    m_Played_time[PLAYED_TIME_TOTAL]= fields[19].GetUInt32();
+    m_Played_time[PLAYED_TIME_LEVEL]= fields[20].GetUInt32();
+
+    m_atLoginFlags = fields[33].GetUInt32();
+
+
+    // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
+
+
+    m_specsCount = fields[58].GetUInt8();
+    m_activeSpec = fields[59].GetUInt8();
+
+    // add ghost flag (must be after aura load: PLAYER_FLAGS_GHOST set in aura)
+    if( HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST) )
+        m_deathState = DEAD;
+
+
+    // all fields read
+    delete result;
+    result = NULL;
+
     return true;
 }
-*/
+
 void Player::_LoadDeclinedNames(QueryResult* result)
 {
     if(!result)
