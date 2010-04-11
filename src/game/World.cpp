@@ -857,9 +857,9 @@ void World::LoadConfigSettings(bool reload)
     sLog.outString( "WORLD: VMap data directory is: %svmaps",m_dataPath.c_str());
     sLog.outString( "WORLD: VMap config keys are: vmap.enableLOS, vmap.enableHeight, vmap.ignoreMapIds, vmap.ignoreSpellIds");
 
-    /* AHBot Configuration Settings */
-    setConfig(CONFIG_BOOL_AHBOT_SELLER_ENABLED  , "AuctionHouseBot.Seller.Enabled"  , false);
-    setConfig(CONFIG_BOOL_AHBOT_BUYER_ENABLED   , "AuctionHouseBot.Buyer.Enabled"   , false);
+    // AHBot Configuration Settings 
+    setConfig(CONFIG_BOOL_AHBOT_SELLER_ENABLED  , "AuctionHouseBot.Seller.Enabled"  , true);
+    setConfig(CONFIG_BOOL_AHBOT_BUYER_ENABLED   , "AuctionHouseBot.Buyer.Enabled"   , true);
 
     setConfig(CONFIG_UINT32_AHBOT_ACCOUNT_ID    , "AuctionHouseBot.Account"         , 1); //change me
     setConfig(CONFIG_UINT32_AHBOT_CHARACTER_ID  , "AuctionHouseBot.Character"       , 1); //change me
