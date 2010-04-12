@@ -1,12 +1,3 @@
-/*
-Navicat MySQL Data Transfer
-Source Host     : localhost:3306
-Source Database : 332_char_acc
-Target Host     : localhost:3306
-Target Database : 332_char_acc
-Date: 2010-04-11 21:34:07
-*/
-
 SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
 -- Table structure for auctionhousebot

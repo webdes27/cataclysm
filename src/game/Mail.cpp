@@ -961,13 +961,9 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32
 
     // will delete item or place to receiver mail list
     if (sender_guid == auctionbot.GetAHBplayerGUID())
-	{
         SendMailTo(MailReceiver(receiver,receiver_guid), MailSender(MAIL_CREATURE, sender_guid), MAIL_CHECK_MASK_RETURNED, deliver_delay);
-	}
     else
-	{
 		SendMailTo(MailReceiver(receiver,receiver_guid), MailSender(MAIL_NORMAL, sender_guid), MAIL_CHECK_MASK_RETURNED, deliver_delay);
-	}
 }
 /**
  * Sends a mail.
@@ -984,9 +980,7 @@ void MailDraft::SendMailTo(MailReceiver const& receiver, MailSender const& sende
     if (receiver.GetPlayerGUIDLow() == auctionbot.GetAHBplayerGUID())
     {
         if (sender.GetMailMessageType() == MAIL_AUCTION && !m_items.empty())
-		{
             deleteIncludedItems(true);
-		}
         return;
     }
 

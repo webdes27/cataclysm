@@ -1439,7 +1439,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         bool LoadFromDB(uint32 guid, SqlQueryHolder *holder);
 
 		// AuctionHouseBot
-        bool MinimalLoadFromDB(QueryResult *result, uint32 guid);
+		void Initialize(uint32 guid);
+//        bool MinimalLoadFromDB(QueryResult *result, uint32 guid);
 
 		static uint32 GetZoneIdFromDB(uint64 guid);
         static uint32 GetLevelFromDB(uint64 guid);
