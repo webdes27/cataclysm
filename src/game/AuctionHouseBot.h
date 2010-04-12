@@ -6,27 +6,27 @@
 #include "Config/ConfigEnv.h"
 #include "ace/Vector_T.h"
 
-#define AHB_GREY        0
-#define AHB_WHITE       1
-#define AHB_GREEN       2
-#define AHB_BLUE        3
-#define AHB_PURPLE      4
-#define AHB_ORANGE      5
-#define AHB_YELLOW      6
-#define AHB_GREY_TG     0
-#define AHB_WHITE_TG    1
-#define AHB_GREEN_TG    2
-#define AHB_BLUE_TG     3
-#define AHB_PURPLE_TG   4
-#define AHB_ORANGE_TG   5
-#define AHB_YELLOW_TG   6
-#define AHB_GREY_I      7
-#define AHB_WHITE_I     8
-#define AHB_GREEN_I     9
-#define AHB_BLUE_I      10
-#define AHB_PURPLE_I    11
-#define AHB_ORANGE_I    12
-#define AHB_YELLOW_I    13
+#define AHB_GREY 0
+#define AHB_WHITE 1
+#define AHB_GREEN 2
+#define AHB_BLUE 3
+#define AHB_PURPLE 4
+#define AHB_ORANGE 5
+#define AHB_YELLOW 6
+#define AHB_GREY_TG 0
+#define AHB_WHITE_TG 1
+#define AHB_GREEN_TG 2
+#define AHB_BLUE_TG 3
+#define AHB_PURPLE_TG 4
+#define AHB_ORANGE_TG 5
+#define AHB_YELLOW_TG 6
+#define AHB_GREY_I 7
+#define AHB_WHITE_I 8
+#define AHB_GREEN_I 9
+#define AHB_BLUE_I 10
+#define AHB_PURPLE_I 11
+#define AHB_ORANGE_I 12
+#define AHB_YELLOW_I 13
 
 class AHBConfig
 {
@@ -149,7 +149,7 @@ public:
     }
     uint32 GetMinItems()
     {
-        if ((minItems  == 0) && (maxItems))
+        if ((minItems == 0) && (maxItems))
             return maxItems;
         else if ((maxItems) && (minItems > maxItems))
             return maxItems;
@@ -932,7 +932,22 @@ private:
     ACE_Vector<uint32> orangeItemsBin;
     ACE_Vector<uint32> yellowItemsBin;
 
+	bool AHBSeller;
+    bool AHBBuyer;
+    bool BuyMethod;
+    bool SellMethod;
+	
     bool debug_Out;
+	
+	bool Vendor_Items;
+    bool Loot_Items;
+    bool Other_Items;
+
+    bool No_Bind;
+    bool Bind_When_Picked_Up;
+    bool Bind_When_Equipped;
+    bool Bind_When_Use;
+    bool Bind_Quest_Item;
 
     AHBConfig AllianceConfig;
     AHBConfig HordeConfig;
