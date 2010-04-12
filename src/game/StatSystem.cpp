@@ -39,21 +39,19 @@ bool Player::UpdateStats(Stats stat)
 
     SetStat(stat, int32(value));
 
-	// deathknight's ghoul benefit from owner's strength
-    if(stat == STAT_STAMINA || stat == STAT_INTELLECT || stat == STAT_STRENGTH)
+	if(stat == STAT_STAMINA || stat == STAT_INTELLECT || stat == STAT_STRENGTH)
     {
         Pet *pet = GetPet();
         if(pet)
 		{
             pet->UpdateStats(stat);
-		if (getClass() == CLASS_DEATH_KNIGHT && pet->getPetType() == SUMMON_PET)
+			if (getClass() == CLASS_DEATH_KNIGHT && pet->getPetType() == SUMMON_PET)
             {
                 pet->RemoveAllAuras();
                 pet->CastPetAuras(true);
             }
         }
     }
-
 
     switch(stat)
     {
@@ -890,7 +888,7 @@ bool Pet::UpdateStats(Stats stat)
             switch (owner->getClass())
             {
                 case CLASS_HUNTER:
-                    scale_coeff = 0.45f;
+                    value += float(owner->GetStat(stat)) * 0.4725f;
 					break;
                 case CLASS_WARLOCK:
 					{
@@ -914,14 +912,6 @@ bool Pet::UpdateStats(Stats stat)
             value += float(owner->GetStat(stat)) * scale_coeff;
         }
     }
-	else if ( stat == STAT_STRENGTH && getPetType() == SUMMON_PET )
-    {
-        if (owner && (owner->getClass() == CLASS_DEATH_KNIGHT))
-        {
-            value += float(owner->GetStat(stat)) * 0.3f;
-        }
-    }
-
                                                             //warlock's and mage's pets gain 30% of owner's intellect
     else if ( stat == STAT_INTELLECT && getPetType() == SUMMON_PET )
     {
@@ -1053,7 +1043,7 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
             bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.22f;
             SetBonusDamage( int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));
         }
-        //demons benefit from warlocks shadow or fire damage
+		//demons benefit from warlocks shadow or fire damage
         else if(getPetType() == SUMMON_PET && owner->getClass() == CLASS_WARLOCK)
         {
             int32 fire  = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);

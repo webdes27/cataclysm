@@ -165,7 +165,7 @@ void Creature::RemoveFromWorld()
 
 void Creature::RemoveCorpse()
 {
-    if (((getDeathState() != CORPSE && getDeathState() != GHOULED) && !m_isDeadByDefault) || (getDeathState() != ALIVE && m_isDeadByDefault))
+    if ((getDeathState() != CORPSE && !m_isDeadByDefault) || (getDeathState() != ALIVE && m_isDeadByDefault))
         return;
 
     m_deathTimer = 0;
@@ -395,7 +395,6 @@ void Creature::Update(uint32 diff)
             }
             break;
         }
-		case GHOULED:
         case CORPSE:
         {
             if (m_isDeadByDefault)

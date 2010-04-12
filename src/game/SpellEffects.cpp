@@ -385,18 +385,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
                     }
-					// Explode
-                    case 47496:
-                    {
-					// Special Effect only for caster (ghoul in this case)
-                        if (unitTarget->GetEntry() == 26125 && (unitTarget->GetGUID() == m_caster->GetGUID()))
-                        {
-                            // After explode the ghoul must be killed
-                            unitTarget->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        }
-                        break;
-                    }
-                    // Tympanic Tantrum
+					// Tympanic Tantrum
                     case 62775:
                     {
                         damage = unitTarget->GetMaxHealth() / 10;
@@ -2420,66 +2409,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
-			// Corpse Explosion
-            if(m_spellInfo->SpellIconID == 1737)
-            {
-                // Living ghoul as a target
-                if (unitTarget->GetEntry() == 26125 && unitTarget->isAlive())
-                {
-                    int32 bp = unitTarget->GetMaxHealth()*0.25f;
-                    unitTarget->CastCustomSpell(unitTarget,47496,&bp,NULL,NULL,true);
-                }
-                // Some corpse
-                else
-                {
-                    // In this case only (m_currentBasePoints[0]+1) can guarantee real damage amount.
-                    int32 bp = m_currentBasePoints[0]+1;
-                    m_caster->CastCustomSpell(unitTarget,50444,&bp,NULL,NULL,true);
-                }
-                unitTarget->SetDisplayId(25537+urand(0,3));
-            }
-            if(m_spellInfo->Id == 46584) // Raise dead effect
-            {
-                if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
-                // We can have a summoned pet/guardian only in 2 cases:
-                // 1. It was summoned from corpse in EffectScriptEffect.
-                if (getState() == SPELL_STATE_FINISHED)
-                    return;
-                // 2. Cooldown of Raise Dead is finished and we want to repeat the cast with active pet.
-                if (((Player*)m_caster)->GetPet())
-                {
-                    ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
-                    SendCastResult(SPELL_FAILED_ALREADY_HAVE_SUMMON);
-                    return;
-                }
-                // We will get here ONLY if we have no corpse.
-                bool allow_cast = false;
-                // We do not need any reagent if we have Glyph of Raise Dead.
-                if (m_caster->HasAura(60200))
-                    allow_cast = true;
-                else
-                    // We need Corpse Dust to cast a spell.
-                    if (((Player*)m_caster)->HasItemCount(37201,1))
-                    {
-                        ((Player*)m_caster)->DestroyItemCount(37201,1,true);
-                        allow_cast = true;
-                    }
-                if (allow_cast)
-                {
-                    if (m_caster->HasSpell(52143))
-                        m_caster->CastSpell(m_caster,52150,true);
-                    else
-                        m_caster->CastSpell(m_caster,46585,true);
-                }
-                else
-                {
-                    ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
-                    SendCastResult(SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
-                }
-                return;
-            }
-            // Death Coil
+			// Death Coil
             if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x002000))
             {
                 if (m_caster->IsFriendlyTo(unitTarget))
@@ -5113,10 +5043,6 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
             else
                 ++itr;
         }
-		// Summoned creature is ghoul.
-        if (NewSummon->GetEntry() == 26125)
-            // He must have energy bar instead of mana
-            NewSummon->setPowerType(POWER_ENERGY);
 
         // generate new name for summon pet
         std::string new_name = sObjectMgr.GeneratePetName(petentry);
