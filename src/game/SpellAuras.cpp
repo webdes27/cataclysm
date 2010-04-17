@@ -256,12 +256,12 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //203 SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE  implemented in Unit::CalculateMeleeDamage and Unit::SpellCriticalDamageBonus
     &Aura::HandleNoImmediateEffect,                         //204 SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE implemented in Unit::CalculateMeleeDamage and Unit::SpellCriticalDamageBonus
     &Aura::HandleNoImmediateEffect,                         //205 SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_DAMAGE  implemented in Unit::SpellCriticalDamageBonus
-    &Aura::HandleAuraModIncreaseFlightSpeed,                //206 SPELL_AURA_MOD_SPEED_MOUNTED
-    &Aura::HandleAuraModIncreaseFlightSpeed,                //207 SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED
-    &Aura::HandleAuraModIncreaseFlightSpeed,                //208 SPELL_AURA_MOD_SPEED_FLIGHT, used only in spell: Flight Form (Passive)
-    &Aura::HandleAuraModIncreaseFlightSpeed,                //209 SPELL_AURA_MOD_FLIGHT_SPEED_ALWAYS
-    &Aura::HandleNULL,                                      //210 "Increase flight speed by"
-    &Aura::HandleAuraModIncreaseFlightSpeed,                //211 SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK
+    &Aura::HandleAuraModIncreaseFlightSpeed,                //206 SPELL_AURA_MOD_FLIGHT_SPEED
+    &Aura::HandleAuraModIncreaseFlightSpeed,                //207 SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED
+    &Aura::HandleAuraModIncreaseFlightSpeed,                //208 SPELL_AURA_MOD_FLIGHT_SPEED_STACKING
+    &Aura::HandleAuraModIncreaseFlightSpeed,                //209 SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED_STACKING
+    &Aura::HandleAuraModIncreaseFlightSpeed,                //210 SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACKING
+    &Aura::HandleAuraModIncreaseFlightSpeed,                //211 SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED_NOT_STACKING
     &Aura::HandleAuraModRangedAttackPowerOfStatPercent,     //212 SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT
     &Aura::HandleNoImmediateEffect,                         //213 SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT implemented in Player::RewardRage
     &Aura::HandleUnused,                                    //214 Tamed Pet Passive (single test like spell 20782, also single for 157 aura)
@@ -384,7 +384,7 @@ m_isRemovedOnShapeLost(true), m_in_use(0), m_deleted(false)
 
     m_spellProto = spellproto;
 
-    m_currentBasePoints = currentBasePoints ? *currentBasePoints : m_spellProto->EffectBasePoints[eff] + 1;
+    m_currentBasePoints = currentBasePoints ? *currentBasePoints : m_spellProto->CalculateSimpleValue(eff);
 
     m_isPassive = IsPassiveSpell(GetId());
     m_positive = IsPositiveEffect(GetId(), m_effIndex);
@@ -397,7 +397,7 @@ m_isRemovedOnShapeLost(true), m_in_use(0), m_deleted(false)
     if(!caster)
     {
         m_caster_guid = target->GetGUID();
-        damage = m_currentBasePoints;                       // stored value-1
+        damage = m_currentBasePoints;
         m_maxduration = target->CalculateSpellDuration(m_spellProto, m_effIndex, target);
     }
     else
@@ -754,32 +754,16 @@ void AreaAura::Update(uint32 diff)
                 }
                 case AREA_AURA_FRIEND:
                 {
-                    CellPair p(MaNGOS::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
-                    Cell cell(p);
-                    cell.data.Part.reserved = ALL_DISTRICT;
-                    cell.SetNoCreate();
-
                     MaNGOS::AnyFriendlyUnitInObjectRangeCheck u_check(caster, m_radius);
                     MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(caster,targets, u_check);
-                    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-                    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-                    cell.Visit(p, world_unit_searcher, *caster->GetMap(), *caster, m_radius);
-                    cell.Visit(p, grid_unit_searcher, *caster->GetMap(), *caster, m_radius);
+                    Cell::VisitAllObjects(caster, searcher, m_radius);
                     break;
                 }
                 case AREA_AURA_ENEMY:
                 {
-                    CellPair p(MaNGOS::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
-                    Cell cell(p);
-                    cell.data.Part.reserved = ALL_DISTRICT;
-                    cell.SetNoCreate();
-
                     MaNGOS::AnyAoETargetUnitInObjectRangeCheck u_check(caster, m_radius); // No GetCharmer in searcher
                     MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck> searcher(caster, targets, u_check);
-                    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-                    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-                    cell.Visit(p, world_unit_searcher, *caster->GetMap(), *caster, m_radius);
-                    cell.Visit(p, grid_unit_searcher, *caster->GetMap(), *caster, m_radius);
+                    Cell::VisitAllObjects(caster, searcher, m_radius);
                     break;
                 }
                 case AREA_AURA_OWNER:
@@ -834,7 +818,7 @@ void AreaAura::Update(uint32 diff)
                     int32 actualBasePoints = m_currentBasePoints;
                     // recalculate basepoints for lower rank (all AreaAura spell not use custom basepoints?)
                     if(actualSpellInfo != GetSpellProto())
-                        actualBasePoints = actualSpellInfo->EffectBasePoints[m_effIndex];
+                        actualBasePoints = actualSpellInfo->CalculateSimpleValue(m_effIndex);
                     AreaAura *aur = new AreaAura(actualSpellInfo, m_effIndex, &actualBasePoints, (*tIter), caster, NULL);
                     aur->SetAuraDuration(GetAuraDuration());
                     (*tIter)->AddAura(aur);
@@ -3557,8 +3541,12 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
 
             m_target->SetDisplayId(model_id);
 
+            // creature case, need to update equipment
+            if (ci && m_target->GetTypeId() == TYPEID_UNIT)
+                ((Creature*)m_target)->LoadEquipment(ci->equipmentId, true);
+
             // Dragonmaw Illusion (set mount model also)
-            if(GetId()==42016 && m_target->GetMountID() && !m_target->GetAurasByType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED).empty())
+            if(GetId()==42016 && m_target->GetMountID() && !m_target->GetAurasByType(SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED).empty())
                 m_target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
         }
 
@@ -3585,7 +3573,11 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
         m_target->setTransForm(0);
         m_target->SetDisplayId(m_target->GetNativeDisplayId());
 
-        // re-aplly some from still active with preference negative cases
+        // apply default equipment for creature case
+        if (m_target->GetTypeId() == TYPEID_UNIT)
+            ((Creature*)m_target)->LoadEquipment(((Creature*)m_target)->GetCreatureInfo()->equipmentId, true);
+
+        // re-apply some from still active with preference negative cases
         Unit::AuraList const& otherTransforms = m_target->GetAurasByType(SPELL_AURA_TRANSFORM);
         if (!otherTransforms.empty())
         {
@@ -4563,7 +4555,7 @@ void Aura::HandleAuraModIncreaseFlightSpeed(bool apply, bool Real)
         return;
 
     // Enable Fly mode for flying mounts
-    if (m_modifier.m_auraname == SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED)
+    if (m_modifier.m_auraname == SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED)
     {
         WorldPacket data;
         if(apply)
@@ -4586,6 +4578,34 @@ void Aura::HandleAuraModIncreaseFlightSpeed(bool apply, bool Real)
         if (apply && GetSpellProto()->SpellIconID != 1794 && m_target->HasAura(62061))
             // Reindeer Transformation
             m_target->CastSpell(m_target, 25860, true, NULL, this);
+    }
+
+    // Swift Flight Form check for higher speed flying mounts
+    if (apply && m_target->GetTypeId() == TYPEID_PLAYER && GetSpellProto()->Id == 40121)
+    {
+        for (PlayerSpellMap::const_iterator iter = ((Player*)m_target)->GetSpellMap().begin(); iter != ((Player*)m_target)->GetSpellMap().end(); ++iter)
+        {
+            if (iter->second.state != PLAYERSPELL_REMOVED)
+            {
+                bool changedSpeed = false;
+                SpellEntry const *spellInfo = sSpellStore.LookupEntry(iter->first);
+                for(int i = 0; i < MAX_EFFECT_INDEX; ++i)
+                {
+                    if(spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED)
+                    {
+                        int32 mountSpeed = spellInfo->CalculateSimpleValue(SpellEffectIndex(i));
+                        if (mountSpeed > m_modifier.m_amount)
+                        {
+                            m_modifier.m_amount = mountSpeed;
+                            changedSpeed = true;
+                            break;
+                        }
+                    }
+                }
+                if (changedSpeed)
+                    break;
+            }
+        }
     }
 
     m_target->UpdateSpeed(MOVE_FLIGHT, true);
@@ -8279,18 +8299,9 @@ void Aura::PeriodicDummyTick()
                         // eff_radius ==0
                         float radius = GetSpellMaxRange(sSpellRangeStore.LookupEntry(spell->rangeIndex));
 
-                        CellPair p(MaNGOS::ComputeCellPair(m_target->GetPositionX(),m_target->GetPositionY()));
-                        Cell cell(p);
-                        cell.data.Part.reserved = ALL_DISTRICT;
-
                         MaNGOS::AnyUnfriendlyVisibleUnitInObjectRangeCheck u_check(m_target, m_target, radius);
                         MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyVisibleUnitInObjectRangeCheck> checker(m_target, targets, u_check);
-
-                        TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
-                        TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
-
-                        cell.Visit(p, grid_object_checker,  *m_target->GetMap(), *m_target, radius);
-                        cell.Visit(p, world_object_checker, *m_target->GetMap(), *m_target, radius);
+                        Cell::VisitAllObjects(m_target, checker, radius);
                     }
 
                     if(targets.empty())
