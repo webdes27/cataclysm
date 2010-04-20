@@ -389,6 +389,7 @@ void ThreatManager::addThreat(Unit* pVictim, float pThreat, bool crit, SpellScho
 
     // not to dead and not for dead
     if(!pVictim->isAlive() || !getOwner()->isAlive() )
+	if(!pVictim->isAlive() || !getOwner()->isAlive() || !pVictim->IsInWorld() || !getOwner()->IsInWorld())
         return;
 
 	// is hostile
