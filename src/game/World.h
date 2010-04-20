@@ -78,7 +78,7 @@ enum WorldTimers
     WUPDATE_CORPSES     = 5,
     WUPDATE_EVENTS      = 6,
     WUPDATE_DELETECHARS = 7,
-	UPDATE_AUTOBROADCAST   = 8,
+	WUPDATE_AUTOBROADCAST   = 8,
     WUPDATE_COUNT       = 9
 };
 
