@@ -7513,14 +7513,14 @@ void Aura::PeriodicTick()
         case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
         {
             // don't damage target if not alive, possible death persistent effects
-            if (!m_target->isAlive())
+            if (!m_target->IsInWorld() ||  !m_target->isAlive())
                 return;
 
             Unit *pCaster = GetCaster();
             if(!pCaster)
                 return;
 
-            if(!pCaster->isAlive())
+            if(!pCaster->IsInWorld() || !pCaster->isAlive())
                 return;
 
             if( GetSpellProto()->Effect[GetEffIndex()] == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
