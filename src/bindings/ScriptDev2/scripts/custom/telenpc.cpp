@@ -103,7 +103,7 @@ bool EnableShoppingMall = SD2Config.GetBoolDefault("TeleNPC.EnableShoppingMall",
 bool EnableHarmonyGuildShip = SD2Config.GetBoolDefault("TeleNPC.HarmonyGuildShip", false);
 bool EnableUnityGuildShip = SD2Config.GetBoolDefault("TeleNPC.UnityGuildShip", false);
 
-//Mony Check
+//Money Check
 if (pPlayer->GetMoney() < (SD2Config.GetFloatDefault("TeleGoldCost",0)))
 {
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -314,6 +314,13 @@ case 4000: // Player Tools
 	if(EnableInnkeeper)
 		pPlayer->ADD_GOSSIP_ITEM( 5, "Make This Place Your Home"  , GOSSIP_SENDER_MAIN, 4005);
 	pPlayer->ADD_GOSSIP_ITEM( 5, "Reset Talent Points"              , GOSSIP_SENDER_MAIN, 4010);
+	// Twink Remove Experience
+	if(pPlayer->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED))
+	{
+		pPlayer->ADD_GOSSIP_ITEM( 5, "Add Experience (enables leveling again)"              , GOSSIP_SENDER_MAIN, 4040);
+	}
+	else
+		pPlayer->ADD_GOSSIP_ITEM( 5, "Remove Experience (can't level anymore)"              , GOSSIP_SENDER_MAIN, 4035);
       // Check if player is Hunter for "Reset Pet Talent Points"
 	if(pPlayer->getClass()==3)
 		pPlayer->ADD_GOSSIP_ITEM( 5, "Reset Pet Talent Points"    , GOSSIP_SENDER_MAIN, 4015);
@@ -862,6 +869,28 @@ case 4015:// Reset Pet Talent Points
 	else
 	pCreature->MonsterWhisper("You don't have a pet.", pPlayer->GetGUID());
 break;
+
+case 4035:// Remove Experience (great for twinks)
+	if(pPlayer->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED))
+	{
+		pPlayer->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED);
+		pPlayer->CLOSE_GOSSIP_MENU();
+	}
+	else
+		pPlayer->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED);
+	pPlayer->CLOSE_GOSSIP_MENU();
+	break;
+
+case 4040:// Enables XP again (reverts case 4035)
+	if(pPlayer->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED))
+	{
+		pPlayer->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED);
+		pPlayer->CLOSE_GOSSIP_MENU();
+	}
+	else
+		pPlayer->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED);
+	pPlayer->CLOSE_GOSSIP_MENU();
+	break;
 
 case 4020://Remove Res Sickness
 	if(!pPlayer->HasAura(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS, EFFECT_INDEX_0))
