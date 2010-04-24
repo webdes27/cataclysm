@@ -753,16 +753,12 @@ void AuctionHouseBot::Update()
 }
 
 void AuctionHouseBot::LoadDbConfig()
-{/*
-    debug_Out = sConfig.GetIntDefault("AuctionHouseBot.DEBUG", 0);
-
-	ItemsPerCycle = sWorld.getConfig(CONFIG_UINT32_AHBOT_ITEMS_CYCLE);
-*/
-    if (!sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
+{
+    /*if (!sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
     {
         LoadValues(&AllianceConfig);
         LoadValues(&HordeConfig);
-    }
+    }*/
     LoadValues(&NeutralConfig);
 }
 
@@ -770,7 +766,7 @@ void AuctionHouseBot::Initialize()
 {
     debug_Out = sConfig.GetIntDefault("AuctionHouseBot.DEBUG", 0);
     ItemsPerCycle = sWorld.getConfig(CONFIG_UINT32_AHBOT_ITEMS_CYCLE);
-    LoadDbConfig();
+    //LoadDbConfig();
 
     if (sWorld.getConfig(CONFIG_BOOL_AHBOT_SELLER_ENABLED))
     {
