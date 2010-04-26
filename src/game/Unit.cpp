@@ -2009,7 +2009,7 @@ void Unit::CalculateAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolMask, D
                 if (spellProto->SpellIconID == 2253)
                 {
                     //reduces all damage taken while Stunned & in Cat Form
-                    if (pVictim->m_form == FORM_CAT && (unitflag & UNIT_FLAG_STUNNED))
+                    if (m_form == FORM_CAT && (unitflag & UNIT_FLAG_STUNNED))
                         RemainingDamage -= RemainingDamage * currentAbsorb / 100;
                     continue;
                 }
@@ -2087,14 +2087,14 @@ void Unit::CalculateAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolMask, D
                 if (spellProto->SpellIconID == 2135)
                 {
                     // Apply absorb only on damage below 35% hp 
-                    int32 absorbableDamage = RemainingDamage + 0.35f * pVictim->GetMaxHealth() - pVictim->GetHealth();
+                    int32 absorbableDamage = RemainingDamage + 0.35f * GetMaxHealth() - GetHealth();
                     if (absorbableDamage > RemainingDamage)
                         absorbableDamage = RemainingDamage;
                     if (absorbableDamage > 0)
                         RemainingDamage -= absorbableDamage * currentAbsorb / 100;
 
                     // 66233 is cooldown aura
-                    if (!((Player*)pVictim)->HasAura(66233))
+                    if (!((Player*)this)->HasAura(66233))
                         preventDeathSpell = (*i)->GetSpellProto();
 
                     continue;
@@ -2129,9 +2129,9 @@ void Unit::CalculateAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolMask, D
 				// Unbreakable armor
                 if (spellProto->Id == 51271)
                 {
-                    int32 absorbed = pVictim->GetArmor() * currentAbsorb / 100;
+                    int32 absorbed = GetArmor() * currentAbsorb / 100;
                     // If we have a glyph
-                    if (Aura* aur = pVictim->GetDummyAura(58635))
+                    if (Aura* aur = GetDummyAura(58635))
                         absorbed += absorbed * aur->GetModifier()->m_amount / 100;
                     RemainingDamage = (RemainingDamage < absorbed) ? 0 : RemainingDamage - absorbed;
                     continue;
@@ -2373,7 +2373,7 @@ void Unit::CalculateAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolMask, D
                 if (preventDeathSpell->SpellIconID == 2135)
                 {
                     // Calculate defense over level * 5
-                    int32 defenseAmount = pVictim->GetDefenseSkillValue() - pVictim->getLevel() * 5; 
+                    int32 defenseAmount = GetDefenseSkillValue() - getLevel() * 5; 
                     // Proceed if positive value
                     if (defenseAmount > 0)
                     {
@@ -2381,13 +2381,13 @@ void Unit::CalculateAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolMask, D
                         if (defenseAmount > 140)
                             defenseAmount = 140;
                         // Trigger cooldown aura
-                        pVictim->CastSpell(pVictim, 66233, true);
+                        CastSpell(this, 66233, true);
                         // Calculate heal amount
                         int32 healAmount = preventDeathSpell->CalculateSimpleValue(EFFECT_INDEX_1);
-                        healAmount = defenseAmount * pVictim->GetMaxHealth() * healAmount / 14000 - pVictim->GetHealth();
+                        healAmount = defenseAmount * GetMaxHealth() * healAmount / 14000 - GetHealth();
                         // Heal if positive value
                         if (healAmount > 0)
-                            pVictim->CastCustomSpell(pVictim, 66235, &healAmount, NULL, NULL, true);
+                            CastCustomSpell(this, 66235, &healAmount, NULL, NULL, true);
                         // Absorb Everything
                         RemainingDamage = 0;
                     }
