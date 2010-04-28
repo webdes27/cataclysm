@@ -198,7 +198,9 @@ void Group::ConvertToRaid()
 
 bool Group::AddInvite(Player *player)
 {
-    if( !player || player->GetGroupInvite() )
+	if (player->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
+        return false;
+	if( !player || player->GetGroupInvite() )
         return false;
     Group* group = player->GetGroup();
     if( group && group->isBGGroup() )
