@@ -518,7 +518,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         // Shadowflame
                         if ((*i)->GetSpellProto()->SpellFamilyFlags2 & 0x00000002)
                             aura = *i;                      // remember but wait possible Immolate as primary priority
-                    }
+					}
 
                     // found Immolate or Shadowflame
                     if (aura)
@@ -528,8 +528,9 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damagetick = unitTarget->SpellDamageBonusTaken(m_caster, aura->GetSpellProto(), damagetick, DOT);
                         damage += damagetick * 4;
 					}
+				}
                 break;
-            }
+				}
             case SPELLFAMILY_PRIEST:
             {
                 // Shadow Word: Death - deals damage equal to damage done to caster

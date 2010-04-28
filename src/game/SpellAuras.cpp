@@ -5127,8 +5127,12 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                     // found Immolate or Shadowflame
                     if (aura)
                     {
-                        int32 damagetick = caster->SpellDamageBonus(m_target, aura->GetSpellProto(), aura->GetModifier()->m_amount, DOT);
-                        m_modifier.m_amount += damagetick * 0.3f;
+                        /*int32 damagetick = caster->SpellDamageBonus(m_target, aura->GetSpellProto(), aura->GetModifier()->m_amount, DOT);
+                        m_modifier.m_amount += damagetick * 0.3f;*/
+
+						int32 damagetick = caster->SpellDamageBonusDone(m_target, aura->GetSpellProto(), aura->GetModifier()->m_amount, DOT);
+                        damagetick = m_target->SpellDamageBonusTaken(caster, aura->GetSpellProto(), damagetick, DOT);
+						m_modifier.m_amount += damagetick * 0.3f;
 
                         // Glyph of Conflagrate
                         if (!caster->HasAura(56235))
