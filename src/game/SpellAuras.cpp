@@ -7118,6 +7118,9 @@ void Aura::HandleAuraAllowFlight(bool apply, bool Real)
     if(!Real)
         return;
 
+	if (!m_target || m_target->GetTypeId() != TYPEID_PLAYER)
+         return; 
+
     // allow fly
     WorldPacket data;
     if(apply)
@@ -7713,6 +7716,7 @@ void Aura::PeriodicTick()
                 if( BattleGround *bg = ((Player*)pCaster)->GetBattleGround() )
                     bg->UpdatePlayerScore(((Player*)pCaster), SCORE_HEALING_DONE, gain);
 
+			if (m_target->CanHaveThreatList())
             m_target->getHostileRefManager().threatAssist(pCaster, float(gain) * 0.5f, GetSpellProto());
 
             SpellEntry const* spellProto = GetSpellProto();

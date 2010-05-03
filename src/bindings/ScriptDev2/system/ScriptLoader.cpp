@@ -317,12 +317,13 @@ extern void AddSC_boss_ymiron();
 extern void AddSC_instance_pinnacle();
 extern void AddSC_instance_violet_hold();                   //violet_hold
 extern void AddSC_violet_hold();
+extern void AddSC_icecrown();								//Icecrown Citadel
+extern void AddSC_boss_the_lich_king();
 
 extern void AddSC_borean_tundra();
 extern void AddSC_dalaran();
 extern void AddSC_dragonblight();
 extern void AddSC_howling_fjord();
-extern void AddSC_icecrown();
 extern void AddSC_sholazar_basin();
 extern void AddSC_storm_peaks();
 extern void AddSC_zuldrak();
@@ -720,12 +721,13 @@ void AddScripts()
     AddSC_instance_pinnacle();
     AddSC_instance_violet_hold();                           //violet_hold
     AddSC_violet_hold();
+	AddSC_icecrown();										//Icecrown Citadel
+	AddSC_boss_the_lich_king();
 
     AddSC_borean_tundra();
     AddSC_dalaran();
     AddSC_dragonblight();
     AddSC_howling_fjord();
-    AddSC_icecrown();
     AddSC_sholazar_basin();
     AddSC_storm_peaks();
     AddSC_zuldrak();

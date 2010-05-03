@@ -581,13 +581,9 @@ void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
 bool Map::loaded(const GridPair &p) const
 {
 	if ( (p.x_coord >= MAX_NUMBER_OF_GRIDS) || (p.y_coord >= MAX_NUMBER_OF_GRIDS) )
-    {
-        return false;    // consider already loaded, skip
-    }
-    else
-    {
-        return ( getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord) );
-    }
+		return false;  // consider already loaded, skip
+
+	return ( getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord) );
 }
 
 void Map::Update(const uint32 &t_diff)
