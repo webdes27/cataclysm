@@ -2460,19 +2460,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 }
                 break;
             }
-			case SPELLFAMILY_DEATHKNIGHT:
-            {
-                // Hungering Cold - disease apply
-                if(GetId() == 51209)
-                {
-                    Unit *caster = GetCaster();
-                    if(!caster)
-                        return;
-
-                    caster->CastSpell(m_target, 55095, true);
-                }
-                break;
-            }
         }
     }
     // AT REMOVE
@@ -5087,53 +5074,7 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                 }
                 break;
             }
-			case SPELLFAMILY_WARLOCK:
-            {
-                //Conflagrate DOT
-                if (m_spellProto->TargetAuraState == AURA_STATE_CONFLAGRATE)
-                {
-                    Aura const* aura = NULL;                // found req. aura for damage calculation
-
-                    Unit::AuraList const &mPeriodic = m_target->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                    for(Unit::AuraList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
-                    {
-                        // for caster applied auras only
-                        if ((*i)->GetSpellProto()->SpellFamilyName != SPELLFAMILY_WARLOCK ||
-                            (*i)->GetCasterGUID()!=caster->GetGUID())
-                            continue;
-
-                        // Immolate
-                        if ((*i)->GetSpellProto()->SpellFamilyFlags & UI64LIT(0x0000000000000004))
-                        {
-                            aura = *i;                      // it selected always if exist
-                            break;
-                        }
-
-                        // Shadowflame
-                        if ((*i)->GetSpellProto()->SpellFamilyFlags2 & 0x00000002)
-                            aura = *i;                      // remember but wait possible Immolate as primary priority
-                    }
-
-                    // found Immolate or Shadowflame
-                    if (aura)
-                    {
-                        /*int32 damagetick = caster->SpellDamageBonus(m_target, aura->GetSpellProto(), aura->GetModifier()->m_amount, DOT);
-                        m_modifier.m_amount += damagetick * 0.3f;*/
-
-						int32 damagetick = caster->SpellDamageBonusDone(m_target, aura->GetSpellProto(), aura->GetModifier()->m_amount, DOT);
-                        damagetick = m_target->SpellDamageBonusTaken(caster, aura->GetSpellProto(), damagetick, DOT);
-						m_modifier.m_amount += damagetick * 0.3f;
-
-                        // Glyph of Conflagrate
-                        if (!caster->HasAura(56235))
-                            m_target->RemoveAurasByCasterSpell(aura->GetId(), caster->GetGUID());
-
-                        return;
-                    }
-                }
-                break;
-            }
-            case SPELLFAMILY_DRUID:
+			case SPELLFAMILY_DRUID:
             {
                 // Rake
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000001000) && m_spellProto->Effect[EFFECT_INDEX_2] == SPELL_EFFECT_ADD_COMBO_POINTS)
@@ -6224,7 +6165,6 @@ void Aura::HandleShapeshiftBoosts(bool apply)
     {
         case FORM_CAT:
             spellId1 = 3025;
-            HotWSpellId = 24900;
             MasterShaperSpellId = 48420;
             break;
         case FORM_TREE:
@@ -6241,13 +6181,11 @@ void Aura::HandleShapeshiftBoosts(bool apply)
         case FORM_BEAR:
             spellId1 = 1178;
             spellId2 = 21178;
-            HotWSpellId = 24899;
             MasterShaperSpellId = 48418;
             break;
         case FORM_DIREBEAR:
             spellId1 = 9635;
             spellId2 = 21178;
-            HotWSpellId = 24899;
             MasterShaperSpellId = 48418;
             break;
         case FORM_BATTLESTANCE:
@@ -6397,7 +6335,7 @@ void Aura::HandleShapeshiftBoosts(bool apply)
                 }
             }
             // Heart of the Wild
-            if (HotWSpellId)
+            if (form == FORM_CAT || form == FORM_BEAR || form == FORM_DIREBEAR)
             {
                 Unit::AuraList const& mModTotalStatPct = m_target->GetAurasByType(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
                 for(Unit::AuraList::const_iterator i = mModTotalStatPct.begin(); i != mModTotalStatPct.end(); ++i)
@@ -6405,10 +6343,25 @@ void Aura::HandleShapeshiftBoosts(bool apply)
                     if ((*i)->GetSpellProto()->SpellIconID == 240 && (*i)->GetModifier()->m_miscvalue == 3)
                     {
                         int32 HotWMod = (*i)->GetModifier()->m_amount;
-                        if(GetModifier()->m_miscvalue == FORM_CAT)
-                            HotWMod /= 2;
+                        HotWMod /= 2;
+                        if (form == FORM_CAT)
+                          {
+                            if (HotWMod == 2)       {HotWSpellId = 30902;}
+                            else if (HotWMod == 4)  {HotWSpellId = 30903;}
+                            else if (HotWMod == 6)  {HotWSpellId = 30904;}
+                            else if (HotWMod == 8)  {HotWSpellId = 30905;}
+                            else if (HotWMod == 10) {HotWSpellId = 30906;}
+                          }
+                        else
+                          {
+                            if (HotWMod == 2)       {HotWSpellId = 19255;}
+                            else if (HotWMod == 4)  {HotWSpellId = 19256;}
+                            else if (HotWMod == 6)  {HotWSpellId = 19257;}
+                            else if (HotWMod == 8)  {HotWSpellId = 19258;}
+                            else if (HotWMod == 10) {HotWSpellId = 19259;}
+                          }
 
-                        m_target->CastCustomSpell(m_target, HotWSpellId, &HotWMod, NULL, NULL, true, NULL, this);
+                        m_target->CastCustomSpell(m_target, HotWSpellId, NULL, NULL, NULL, true, NULL, this);
                         break;
                     }
                 }
@@ -6417,6 +6370,35 @@ void Aura::HandleShapeshiftBoosts(bool apply)
     }
     else
     {
+		// Heart of the Wild (delete aura)
+        if (form == FORM_CAT || form == FORM_BEAR || form == FORM_DIREBEAR)
+        {
+             Unit::AuraList const& mModTotalStatPct = m_target->GetAurasByType(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
+             for(Unit::AuraList::const_iterator i = mModTotalStatPct.begin(); i != mModTotalStatPct.end(); ++i)
+             {
+                 if ((*i)->GetSpellProto()->SpellIconID == 240 && (*i)->GetModifier()->m_miscvalue == 3)
+                 {
+                     int32 HotWMod = (*i)->GetModifier()->m_amount / 2;
+                     if (form == FORM_CAT)
+                     {
+                         if (HotWMod == 2)       {HotWSpellId = 30902;}
+                         else if (HotWMod == 4)  {HotWSpellId = 30903;}
+                         else if (HotWMod == 6)  {HotWSpellId = 30904;}
+                         else if (HotWMod == 8)  {HotWSpellId = 30905;}
+                         else if (HotWMod == 10) {HotWSpellId = 30906;}
+                     }
+                     else
+                     {
+                         if (HotWMod == 2)       {HotWSpellId = 19255;}
+                         else if (HotWMod == 4)  {HotWSpellId = 19256;}
+                         else if (HotWMod == 6)  {HotWSpellId = 19257;}
+                         else if (HotWMod == 8)  {HotWSpellId = 19258;}
+                         else if (HotWMod == 10) {HotWSpellId = 19259;}
+                     }
+                     m_target->RemoveAurasDueToSpell(HotWSpellId);
+                 }
+             }
+        }
         if(spellId1)
             m_target->RemoveAurasDueToSpell(spellId1);
         if(spellId2)
@@ -7723,7 +7705,7 @@ void Aura::PeriodicTick()
                 if( BattleGround *bg = ((Player*)pCaster)->GetBattleGround() )
                     bg->UpdatePlayerScore(((Player*)pCaster), SCORE_HEALING_DONE, gain);
 
-			if (m_target->CanHaveThreatList())
+			//if (m_target->CanHaveThreatList())
             m_target->getHostileRefManager().threatAssist(pCaster, float(gain) * 0.5f, GetSpellProto());
 
             SpellEntry const* spellProto = GetSpellProto();
