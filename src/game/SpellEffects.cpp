@@ -5359,6 +5359,12 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
                     if (m_targets.getUnitTarget() != unitTarget)
                         weaponDamagePercentMod /= 2.0f;
             }
+			// Rune Strike
+            if( m_spellInfo->SpellIconID == 3007)
+            {
+                int32 count = CalculateDamage(EFFECT_INDEX_2, unitTarget);
+                spell_bonus += int32(count * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100.0f);
+            }
             // Glyph of Blood Strike
             if( m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000400000) &&
                 m_caster->HasAura(59332) &&

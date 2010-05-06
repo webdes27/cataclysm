@@ -2460,6 +2460,19 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 }
                 break;
             }
+			case SPELLFAMILY_DEATHKNIGHT:
+            {
+                // Hungering Cold - disease apply
+                if(GetId() == 51209)
+                {
+                    Unit *caster = GetCaster();
+                    if(!caster)
+                        return;
+
+                    caster->CastSpell(m_target, 55095, true);
+                }
+                break;
+            }
         }
     }
     // AT REMOVE
@@ -7705,7 +7718,6 @@ void Aura::PeriodicTick()
                 if( BattleGround *bg = ((Player*)pCaster)->GetBattleGround() )
                     bg->UpdatePlayerScore(((Player*)pCaster), SCORE_HEALING_DONE, gain);
 
-			//if (m_target->CanHaveThreatList())
             m_target->getHostileRefManager().threatAssist(pCaster, float(gain) * 0.5f, GetSpellProto());
 
             SpellEntry const* spellProto = GetSpellProto();

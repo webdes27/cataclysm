@@ -1959,7 +1959,8 @@ void Unit::CalculateAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolMask, D
                 if (spellProto->SpellIconID == 3006)
                 {
                     // You have a chance equal to your Parry chance
-                    if (damagetype == DIRECT_DAMAGE &&                   // Only for direct damage
+					if ((damagetype == DIRECT_DAMAGE || damagetype == SPELL_DIRECT_DAMAGE) &&                   // Only for direct damage
+					//if (damagetype == SPELL_DIRECT_DAMAGE &&                     // Only for direct damage
                         roll_chance_f(GetUnitParryChance()))             // Roll chance
                         RemainingDamage -= RemainingDamage * currentAbsorb / 100;
                     continue;
@@ -7394,6 +7395,20 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 triggered_spell_id = dummySpell->EffectTriggerSpell[effIndex];
                 break;
             }
+			// Hungering Cold - not break from diseases
+            if (dummySpell->SpellIconID == 2797)
+            {
+                if (procSpell && procSpell->Dispel == DISPEL_DISEASE)
+                    return false;
+			}
+			break;
+			// Rune strike
+            if (dummySpell->Id == 56817)
+            {
+				if (procSpell && procSpell->Id != 56815)
+					return false;
+            }
+			break;
         }
         default:
             break;
@@ -7924,7 +7939,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
         case SPELLFAMILY_SHAMAN:
         {
             // Lightning Shield (overwrite non existing triggered spell call in spell.dbc
-            if (auraSpellInfo->SpellFamilyFlags & UI64LIT(0x0000000000000400))
+            if (auraSpellInfo->SpellFamilyFlags & UI64LIT(0x0000000000000400) && auraSpellInfo->SpellVisual[0] == 37)
             {
                 switch(auraSpellInfo->Id)
                 {
@@ -13182,6 +13197,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
             case SPELL_AURA_MANA_SHIELD:
             case SPELL_AURA_OBS_MOD_MANA:
+			case SPELL_AURA_MOD_STUN:
             case SPELL_AURA_ADD_PCT_MODIFIER:
             case SPELL_AURA_DUMMY:
             {
