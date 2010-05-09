@@ -232,6 +232,7 @@ void SpellCastTargets::read( ByteBuffer& data, Unit *caster )
         data >> m_CorpseTargetGUID.ReadAsPacked();
 
     if( m_targetMask & TARGET_FLAG_SOURCE_LOCATION )
+	if( m_targetMask & TARGET_FLAG_SOURCE_LOCATION && caster->getClass() != CLASS_DRUID)
     {
         data >> m_unitTargetGUID.ReadAsPacked();
         data >> m_srcX >> m_srcY >> m_srcZ;
