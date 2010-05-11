@@ -3987,10 +3987,13 @@ void ObjectMgr::LoadQuests()
 
             if (!quest->HasFlag(QUEST_MANGOS_FLAGS_EXPLORATION_OR_EVENT))
             {
-                sLog.outErrorDb("Spell (id: %u) have SPELL_EFFECT_QUEST_COMPLETE for quest %u , but quest not have flag QUEST_MANGOS_FLAGS_EXPLORATION_OR_EVENT. Quest flags must be fixed, quest modified to enable objective.",spellInfo->Id,quest_id);
+                sLog.outErrorDb("Spell (id: %u) have SPELL_EFFECT_QUEST_COMPLETE for quest %u , but quest does not have SpecialFlags QUEST_MANGOS_FLAGS_EXPLORATION_OR_EVENT (2) set. Quest SpecialFlags should be corrected to enable this objective.", spellInfo->Id, quest_id);
+
+                // The below forced alteration has been disabled because of spell 33824 / quest 10162.
+                // A startup error will still occur with proper data in quest_template, but it will be possible to sucessfully complete the quest with the expected data.
 
                 // this will prevent quest completing without objective
-                const_cast<Quest*>(quest)->SetFlag(QUEST_MANGOS_FLAGS_EXPLORATION_OR_EVENT);
+                // const_cast<Quest*>(quest)->SetFlag(QUEST_MANGOS_FLAGS_EXPLORATION_OR_EVENT);
             }
         }
     }
@@ -6193,7 +6196,7 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
     if(list0.empty() || list1.empty())
     {
         CreatureInfo const *cinfo = GetCreatureTemplate(entry);
-        char* petname = GetPetName(cinfo->family, sWorld.GetDefaultDbcLocale());
+        char const* petname = GetPetName(cinfo->family, sWorld.GetDefaultDbcLocale());
         if(!petname)
             petname = cinfo->Name;
         return std::string(petname);
