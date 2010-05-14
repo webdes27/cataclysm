@@ -936,8 +936,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     unitTarget = unit;
 
     // Reset damage/healing counter
-    m_damage = 0;
-    m_healing = 0;
+    ResetEffectDamageAndHeal();
 
     // Fill base trigger info
     uint32 procAttacker = m_procAttacker;
@@ -1094,6 +1093,8 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     {
         if (realCaster)
             realCaster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_IMMUNE);
+
+        ResetEffectDamageAndHeal();
         return;
     }
 
@@ -1114,6 +1115,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
         {
             realCaster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
+            ResetEffectDamageAndHeal();
             return;
         }
 
@@ -1124,6 +1126,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                 !unit->isVisibleForOrDetect(m_caster, m_caster, false))
             {
                 realCaster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
+                ResetEffectDamageAndHeal();
                 return;
             }
 
@@ -1162,6 +1165,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             if (m_spellInfo->speed > 0.0f && !IsPositiveSpell(m_spellInfo->Id))
             {
                 realCaster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
+                ResetEffectDamageAndHeal();
                 return;
             }
 
@@ -1892,7 +1896,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     FillRaidOrPartyManaPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, false);
                     break;
                 default:
-                    FillAreaTargets(targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY);
+                    // selected friendly units (for casting objects) around casting object
+                    FillAreaTargets(targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY, GetCastingObject());
                     break;
             }
             break;
@@ -2872,6 +2877,9 @@ void Spell::cast(bool skipCheck)
             // Heroism
             else if (m_spellInfo->Id == 32182)
                 AddPrecastSpell(57723);                     // Exhaustion
+            // Spirit Walk
+            else if (m_spellInfo->Id == 58875)
+                AddPrecastSpell(58876);
             else if (m_spellInfo->Effect[EFFECT_INDEX_0]==SPELL_EFFECT_APPLY_AREA_AURA_RAID && m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000004000000))
                 // only for main totem spell cast
                 AddTriggeredSpell(30708);                   // Totem of Wrath
@@ -5259,7 +5267,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 // allow always ghost flight spells
                 if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->isAlive())
                 {
-                    if (!((Player*)m_caster)->IsKnowHowFlyIn(m_caster->GetMapId(),zone))
+                    if (!((Player*)m_caster)->IsKnowHowFlyIn(m_caster->GetMapId(), zone, area))
                         return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
                 }
                 break;
@@ -6568,13 +6576,24 @@ SpellCastResult Spell::CanOpenLock(SpellEffectIndex effIndex, uint32 lockId, Ski
     return SPELL_CAST_OK;
 }
 
-void Spell::FillAreaTargets(UnitList &targetUnitMap, float x, float y, float radius, SpellNotifyPushType pushType, SpellTargets spellTargets)
+/*
+ * Fill target list by units around (x,y) points at radius distance
+
+ * @param targetUnitMap        Reference to target list that filled by function
+ * @param x                    X coordinates of center point for target search
+ * @param y                    Y coordinates of center point for target search
+ * @param radius               Radius around (x,y) for target search
+ * @param pushType             Additional rules for target area selection (in front, angle, etc)
+ * @param spellTargets         Additional rules for target selection base at hostile/friendly state to original spell caster
+ * @param originalCaster       If provided set alternative original caster, if =NULL then used Spell::GetAffectiveObject() return
+ */
+void Spell::FillAreaTargets(UnitList &targetUnitMap, float x, float y, float radius, SpellNotifyPushType pushType, SpellTargets spellTargets, WorldObject* originalCaster /*=NULL*/)
 {
     CellPair p(MaNGOS::ComputeCellPair(x, y));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
-    MaNGOS::SpellNotifierCreatureAndPlayer notifier(*this, targetUnitMap, radius, pushType, spellTargets);
+    MaNGOS::SpellNotifierCreatureAndPlayer notifier(*this, targetUnitMap, radius, pushType, spellTargets, originalCaster);
     TypeContainerVisitor<MaNGOS::SpellNotifierCreatureAndPlayer, WorldTypeMapContainer > world_notifier(notifier);
     TypeContainerVisitor<MaNGOS::SpellNotifierCreatureAndPlayer, GridTypeMapContainer > grid_notifier(notifier);
     cell.Visit(p, world_notifier, *m_caster->GetMap(), *m_caster, radius);
@@ -6675,4 +6694,66 @@ WorldObject* Spell::GetCastingObject() const
         return m_caster->IsInWorld() ? m_caster->GetMap()->GetGameObject(m_originalCasterGUID) : NULL;
     else
         return m_caster;
+}
+
+void Spell::ResetEffectDamageAndHeal()
+{
+    m_damage = 0;
+    m_healing = 0;
+}
+
+void Spell::SelectMountByAreaAndSkill(Unit* target, uint32 spellId75, uint32 spellId150, uint32 spellId225, uint32 spellId300, uint32 spellIdSpecial)
+{
+    if (!target || target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    // Prevent stacking of mounts
+    target->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+    uint16 skillval = ((Player*)target)->GetSkillValue(SKILL_RIDING);
+    if (!skillval)
+        return;
+
+    if (skillval >= 225 && (spellId300 > 0 || spellId225 > 0))
+    {
+        uint32 spellid = skillval >= 300 ? spellId300 : spellId225;
+        SpellEntry const *pSpell = sSpellStore.LookupEntry(spellid);
+        // zone check
+        uint32 zone, area;
+        target->GetZoneAndAreaId(zone, area);
+
+        SpellCastResult locRes= sSpellMgr.GetSpellAllowedInLocationError(pSpell, target->GetMapId(), zone, area, target->GetCharmerOrOwnerPlayerOrPlayerItself());
+        if (locRes != SPELL_CAST_OK || !((Player*)target)->IsKnowHowFlyIn(target->GetMapId(), zone, area))
+            target->CastSpell(target, spellId150, true);
+        else if (spellIdSpecial > 0)
+        {
+            for (PlayerSpellMap::const_iterator iter = ((Player*)target)->GetSpellMap().begin(); iter != ((Player*)target)->GetSpellMap().end(); ++iter)
+            {
+                if (iter->second.state != PLAYERSPELL_REMOVED)
+                {
+                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(iter->first);
+                    for(int i = 0; i < MAX_EFFECT_INDEX; ++i)
+                    {
+                        if(spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED)
+                        {
+                            int32 mountSpeed = spellInfo->CalculateSimpleValue(SpellEffectIndex(i));
+
+                            // speed higher than 280 replace it
+                            if (mountSpeed > 280)
+                                target->CastSpell(target, spellIdSpecial, true);
+                            return;
+                        }
+                    }
+                }
+            }
+            target->CastSpell(target, pSpell, true);
+        }
+        else
+            target->CastSpell(target, pSpell, true);
+    }
+    else if (skillval >= 150 && spellId150 > 0)
+        target->CastSpell(target, spellId150, true);
+    else if (spellId75 > 0)
+        target->CastSpell(target, spellId75, true);
+
+    return;
 }

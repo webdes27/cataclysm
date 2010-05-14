@@ -2340,6 +2340,9 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             // not use ammo and not allow use
                             ((Player*)m_target)->RemoveAmmo();
                         return;
+                    case 48025:                             // Headless Horseman's Mount
+                        Spell::SelectMountByAreaAndSkill(m_target, 51621, 48024, 51617, 48023, 0);
+                        return;
                     case 62061:                             // Festive Holiday Mount
                         if (m_target->HasAuraType(SPELL_AURA_MOUNTED))
                             // Reindeer Transformation
@@ -2354,6 +2357,15 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         // Teach Learn Talent Specialization Switches, remove
                         if (m_target->GetTypeId() == TYPEID_PLAYER)
                             ((Player*)m_target)->removeSpell(63680);
+                        return;
+                    case 72286:                             // Invincible
+                        Spell::SelectMountByAreaAndSkill(m_target, 72281, 72282, 72283, 72284, 0);
+                        return;
+                    case 74856:                             // Blazing Hippogryph
+                        Spell::SelectMountByAreaAndSkill(m_target, 0, 0, 74854, 74855, 0);
+                        return;
+                    case 75614:                             // Celestial Steed
+                        Spell::SelectMountByAreaAndSkill(m_target, 75619, 75620, 75617, 75618, 76153);
                         return;
                 }
                 break;
@@ -5062,11 +5074,8 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
             {
                 // Pounce Bleed
                 if ( m_spellProto->SpellIconID == 147 && m_spellProto->SpellVisual[0] == 0 )
-                {
                     // $AP*0.18/6 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 3 / 100);
-                    return;
-                }
                 break;
             }
             case SPELLFAMILY_WARRIOR:
@@ -5084,7 +5093,6 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                     if (m_spellProto->CalculateSimpleValue(EFFECT_INDEX_1) !=0 &&
                         m_target->GetHealth() > m_target->GetMaxHealth() * m_spellProto->CalculateSimpleValue(EFFECT_INDEX_1) / 100)
                         m_modifier.m_amount += m_modifier.m_amount * m_spellProto->CalculateSimpleValue(EFFECT_INDEX_2) / 100;
-                    return;
                 }
                 break;
             }
@@ -5092,24 +5100,18 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
             {
                 // Rake
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000001000) && m_spellProto->Effect[EFFECT_INDEX_2] == SPELL_EFFECT_ADD_COMBO_POINTS)
-                {
                     // $AP*0.18/3 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 6 / 100);
-                    return;
-                }
                 // Lacerate
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000010000000000))
-                {
-                    // $AP*0.05 bonus per tick
-                    m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 5 / 100);
-                    return;
-                }
+                    // $AP*0.05/5 bonus per tick
+                    m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
                 // Rip
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000000000800000))
                 {
                     // 0.01*$AP*cp
                     if (caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
+                        break;
 
                     uint8 cp = ((Player*)caster)->GetComboPoints();
 
@@ -5124,15 +5126,11 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                         }
                     }
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * cp / 100);
-                    return;
                 }
                 // Lock Jaw
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x1000000000000000))
-                {
                     // 0.15*$AP
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 15 / 100);
-                    return;
-                }
                 break;
             }
             case SPELLFAMILY_ROGUE:
@@ -5141,7 +5139,7 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000000000100000))
                 {
                     if (caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
+                        break;
                     //1 point : ${($m1+$b1*1+0.015*$AP)*4} damage over 8 secs
                     //2 points: ${($m1+$b1*2+0.024*$AP)*5} damage over 10 secs
                     //3 points: ${($m1+$b1*3+0.03*$AP)*6} damage over 12 secs
@@ -5151,40 +5149,27 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                     uint8 cp = ((Player*)caster)->GetComboPoints();
                     if (cp > 5) cp = 5;
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * AP_per_combo[cp]);
-                    return;
                 }
                 // Garrote
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000000000000100))
-                {
                     // $AP*0.07 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 7 / 100);
-                    return;
-                }
                 // Deadly Poison
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000010000))
-                {
                     // 0.12*$AP / 4 * amount of stack
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 3 * GetStackAmount() / 100);
-                    return;
-                }
                 break;
             }
             case SPELLFAMILY_HUNTER:
             {
                 // Serpent Sting
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000))
-                {
                     // $RAP*0.2/5 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.2 / 5);
-                    return;
-                }
                 // Immolation Trap
                 if ((m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000004)) && m_spellProto->SpellIconID == 678)
-                {
                     // $RAP*0.1/5 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 20 / 500);
-                    return;
-                }
                 break;
             }
             case SPELLFAMILY_PALADIN:
@@ -5198,7 +5183,6 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                     if (holy < 0)
                         holy = 0;
                     m_modifier.m_amount += int32(GetStackAmount()) * (int32(ap * 0.025f) + int32(holy * 13 / 1000));
-                    return;
                 }
                 break;
             }
@@ -8840,7 +8824,7 @@ void Aura::HandleAuraInitializeImages(bool Apply, bool Real)
     // probably should be handled by DB?
     pImmage->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
     pImmage->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-    pImmage->SetUInt32Value(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK2);
+    pImmage->SetUInt32Value(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1);
 }
 
 void Aura::HandleAuraCloneCaster(bool Apply, bool Real)
