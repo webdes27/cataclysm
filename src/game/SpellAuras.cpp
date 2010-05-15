@@ -8824,7 +8824,7 @@ void Aura::HandleAuraInitializeImages(bool Apply, bool Real)
     // probably should be handled by DB?
     pImmage->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
     pImmage->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-    pImmage->SetUInt32Value(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1);
+    pImmage->SetUInt32Value(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVE | UNIT_FLAG2_REGENERATE_POWER);
 }
 
 void Aura::HandleAuraCloneCaster(bool Apply, bool Real)

@@ -188,6 +188,10 @@ void SpellCastTargets::Update(Unit* caster)
         ( m_unitTargetGUID == caster->GetObjectGuid() ? caster : ObjectAccessor::GetUnit(*caster, m_unitTargetGUID) ) :
     NULL;
 
+	if (m_unitTarget && m_unitTargetGUID != caster->GetObjectGuid() &&
+		!m_unitTarget->isVisibleForOrDetect(caster, caster, false))
+		m_unitTarget = NULL;
+
     m_itemTarget = NULL;
     if(caster->GetTypeId() == TYPEID_PLAYER)
     {
@@ -2806,6 +2810,13 @@ void Spell::cast(bool skipCheck)
         {
             if(m_spellInfo->Id == 64382)                    // Shattering Throw
                 AddPrecastSpell(64380);
+            break;
+        }
+		case SPELLFAMILY_DEATHKNIGHT:
+        {
+            // Chains of Ice
+            if (m_spellInfo->Id == 45524)
+                AddTriggeredSpell(55095);                     // Frost Fever
             break;
         }
         case SPELLFAMILY_PRIEST:
