@@ -165,11 +165,11 @@ bool WorldSession::Update(uint32 /*diff*/)
     WorldPacket* packet;
     while (m_Socket && !m_Socket->IsClosed() && _recvQueue.next(packet))
     {
-        /*#if 1
+        #if 1
         sLog.outError( "MOEP: %s (0x%.4X)",
                         LookupOpcodeName(packet->GetOpcode()),
                         packet->GetOpcode());
-        #endif*/
+        #endif
 
         OpcodeHandler& opHandle = opcodeTable[packet->GetOpcode()];
         try

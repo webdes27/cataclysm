@@ -295,6 +295,9 @@ void AuthSocket::SendProof(Sha1Hash sha)
 		case 11655:											// 3.3.3-11655
 		case 11685:											// 3.3.3-11685
         case 11723:                                         // 3.3.3a-11723
+		case 11927:                                         // 4.0.0-11927
+		case 12025:                                         // 4.0.0-12025
+		case 12065:                                         // 4.0.0-12065
         default:                                            // or later
         {
             sAuthLogonProof_S proof;
@@ -945,6 +948,9 @@ void AuthSocket::LoadRealmlist(ByteBuffer &pkt, uint32 acctid)
 		case 11655:											// 3.3.3-11655
 		case 11685:											// 3.3.3-11685
         case 11723:                                         // 3.3.3a-11723
+		case 11927:                                         // 4.0.0-11927
+		case 12025:                                         // 4.0.0-12025
+		case 12065:                                         // 4.0.0-12065
         default:                                            // and later
         {
             pkt << uint32(0);

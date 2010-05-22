@@ -199,7 +199,7 @@ static bool ReadDBCBuildFileText(const std::string& dbc_path, char const* locale
         return false;
 }
 
-static uint32 ReadDBCBuild(const std::string& dbc_path, LocaleNameStr const* localeNameStr = NULL)
+static uint32 ReadDBCBuild(const std::string& dbc_path, LocaleNameStr const*&localeNameStr)
 {
     std::string text;
 
@@ -245,10 +245,11 @@ static bool LoadDBC_assert_print(uint32 fsize,uint32 rsize, const std::string& f
 
 struct LocalData
 {
-    LocalData(uint32 build)
-        : main_build(build), availableDbcLocales(0xFFFFFFFF),checkedDbcLocaleBuilds(0) {}
+    LocalData(uint32 build, LocaleConstant loc)
+        : main_build(build), defaultLocale(loc), availableDbcLocales(0xFFFFFFFF),checkedDbcLocaleBuilds(0) {}
 
     uint32 main_build;
+    LocaleConstant defaultLocale;
 
     // bitmasks for index of fullLocaleNameList
     uint32 availableDbcLocales;
@@ -262,7 +263,7 @@ inline void LoadDBC(LocalData& localeData,barGoLink& bar, StoreProblemList& errl
     ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDBC_assert_print(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()),sizeof(T),filename));
 
     std::string dbc_filename = dbc_path + filename;
-    if(storage.Load(dbc_filename.c_str()))
+    if(storage.Load(dbc_filename.c_str(),localeData.defaultLocale))
     {
         bar.step();
         for(uint8 i = 0; fullLocaleNameList[i].name; ++i)
@@ -298,7 +299,7 @@ inline void LoadDBC(LocalData& localeData,barGoLink& bar, StoreProblemList& errl
             }
 
             std::string dbc_filename_loc = dbc_path + localStr->name + "/" + filename;
-            if(!storage.LoadStringsFrom(dbc_filename_loc.c_str()))
+            if(!storage.LoadStringsFrom(dbc_filename_loc.c_str(),localStr->locale))
                 localeData.availableDbcLocales &= ~(1<<i);  // mark as not available for speedup next checks
         }
     }
@@ -322,7 +323,8 @@ void LoadDBCStores(const std::string& dataPath)
 {
     std::string dbcPath = dataPath+"dbc/";
 
-    uint32 build = ReadDBCBuild(dbcPath);
+    LocaleNameStr const* defaultLocaleNameStr = NULL;
+    uint32 build = ReadDBCBuild(dbcPath,defaultLocaleNameStr);
 
     // Check the expected DBC version
     if (!IsAcceptableClientBuild(build))
@@ -340,7 +342,7 @@ void LoadDBCStores(const std::string& dataPath)
 
     StoreProblemList bad_dbc_files;
 
-    LocalData availableDbcLocales(build);
+    LocalData availableDbcLocales(build,defaultLocaleNameStr->locale);
 
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sAreaStore,                dbcPath,"AreaTable.dbc");
 

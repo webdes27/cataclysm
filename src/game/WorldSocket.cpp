@@ -215,6 +215,7 @@ long WorldSocket::RemoveReference (void)
 
 int WorldSocket::open (void *a)
 {
+	DEBUG_LOG( "worldsocket::open" );
     ACE_UNUSED_ARG (a);
 
     // Prevent double call to this func.
@@ -477,7 +478,7 @@ int WorldSocket::handle_input_header (void)
     EndianConvertReverse(header.size);
     EndianConvert(header.cmd);
 
-    if ((header.size < 4) || (header.size > 10240) || (header.cmd  > 10240))
+    if ((header.size < 4) || (header.size > 10240) ) //|| (header.cmd  > 10240))
     {
         sLog.outError ("WorldSocket::handle_input_header: client sent malformed packet size = %d , cmd = %d",
                        header.size, header.cmd);

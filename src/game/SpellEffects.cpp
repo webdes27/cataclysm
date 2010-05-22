@@ -1884,6 +1884,11 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, spell_id, true);
                     return;
                 }
+                case 68996:                                 // Two Forms
+                {
+                    m_caster->ToggleFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_WORGEN_TRANSFORM);
+                    return;
+                }
             }
             break;
         }
@@ -5541,8 +5546,8 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
                 ((Player*)m_caster)->DestroyItemCount( pItem, count, true);
             }
         }
-        else if(uint32 ammo = ((Player*)m_caster)->GetUInt32Value(PLAYER_AMMO_ID))
-            ((Player*)m_caster)->DestroyItemCount(ammo, 1, true);
+        //else if(uint32 ammo = ((Player*)m_caster)->GetUInt32Value(PLAYER_AMMO_ID))
+        //    ((Player*)m_caster)->DestroyItemCount(ammo, 1, true);
     }
 }
 
