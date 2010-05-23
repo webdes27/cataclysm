@@ -280,7 +280,7 @@ enum Opcodes
     SMSG_MOVE_NORMAL_FALL                           = 0xdbec,
     SMSG_MOVE_SET_HOVER                             = 0xcbe1,
     SMSG_MOVE_UNSET_HOVER                           = 0xbf69,
-    CMSG_MOVE_HOVER_ACK                             = 0x0F6,
+    CMSG_MOVE_HOVER_ACK                             = 0x596a,
     MSG_MOVE_HOVER                                  = 0xad6b,
     CMSG_TRIGGER_CINEMATIC_CHEAT                    = 0x0F8,
     CMSG_OPENING_CINEMATIC                          = 0x0F9,
@@ -294,11 +294,11 @@ enum Opcodes
     CMSG_STANDSTATECHANGE                           = 0x101,
     CMSG_EMOTE                                      = 0xf9ee,
     SMSG_EMOTE                                      = 0x103,
-    CMSG_TEXT_EMOTE                                 = 0x104,
+    CMSG_TEXT_EMOTE                                 = 0x9d68,
     SMSG_TEXT_EMOTE                                 = 11105,
     CMSG_AUTOEQUIP_GROUND_ITEM                      = 0x106,
     CMSG_AUTOSTORE_GROUND_ITEM                      = 0x107,
-    CMSG_AUTOSTORE_LOOT_ITEM                        = 0x108,
+    CMSG_AUTOSTORE_LOOT_ITEM                        = 0x8b6a,
     CMSG_STORE_LOOT_IN_SLOT                         = 0x109,
     CMSG_AUTOEQUIP_ITEM                             = 0x10A,
     CMSG_AUTOSTORE_BAG_ITEM                         = 0x10B,
@@ -608,7 +608,7 @@ enum Opcodes
     SMSG_MAIL_LIST_RESULT                           = 0x23B,
     CMSG_BATTLEFIELD_LIST                           = 0xa9e7,
     SMSG_BATTLEFIELD_LIST                           = 0x23D,
-    CMSG_BATTLEFIELD_JOIN                           = 0x23E,
+    CMSG_BATTLEFIELD_JOIN                           = 0x8f68,
     SMSG_BATTLEFIELD_WIN_OBSOLETE                   = 0xfb6d,
     SMSG_BATTLEFIELD_LOSE_OBSOLETE                  = 0x240,
     CMSG_TAXICLEARNODE                              = 0x241,
@@ -896,7 +896,7 @@ enum Opcodes
     SMSG_ARENA_TEAM_STATS                           = 0x35B,
     CMSG_LFG_JOIN                                   = 0x35C,    // CMSG JoinLFG
     CMSG_LFG_LEAVE                                  = 0x35D,    // CMSG LeaveLFG
-    CMSG_SEARCH_LFG_JOIN                            = 0x35E,    // CMSG SearchLFGJoin
+    CMSG_SEARCH_LFG_JOIN                            = 0x5d6e,    // CMSG SearchLFGJoin
     CMSG_SEARCH_LFG_LEAVE                           = 0x35F,    // CMSG SearchLFGLeave
     SMSG_UPDATE_LFG_LIST                            = 0x360,    // SMSG uint32, uint32, if(uint8) { uint32 count, for(count) { uint64} }, uint32 count2, uint32, for(count2) { uint64, uint32 flags, if(flags & 0x2) {string}, if(flags & 0x10) {for(3) uint8}, if(flags & 0x80) {uint64, uint32}}, uint32 count3, uint32, for(count3) {uint64, uint32 flags, if(flags & 0x1) {uint8, uint8, uint8, for(3) uint8, uint32, uint32, uint32, uint32, uint32, uint32, float, float, uint32, uint32, uint32, uint32, uint32, float, uint32, uint32, uint32, uint32, uint32, uint32}, if(flags&0x2) string, if(flags&0x4) uint8, if(flags&0x8) uint64, if(flags&0x10) uint8, if(flags&0x20) uint32, if(flags&0x40) uint8, if(flags& 0x80) {uint64, uint32}}
     SMSG_LFG_PROPOSAL_UPDATE                        = 0x361,    // SMSG uint32, uint8, uint32, uint32, uint8, for(uint8) {uint32,uint8,uint8,uint8,uint8}
@@ -1251,7 +1251,7 @@ enum Opcodes
     CMSG_UPDATE_PROJECTILE_POSITION                 = 0x4BE, // CMSG, uint64 caster, uint32 spellId, uint8 castId, vector3 position
     SMSG_SET_PROJECTILE_POSITION                    = 0xdf6f, // SMSG, uint64 caster, uint8 castId, vector3 position
     SMSG_TALENTS_INFO                               = 0x0f66, // SMSG, talents related
-    CMSG_LEARN_PREVIEW_TALENTS                      = 0x4C1, // CMSG, lua: LearnPreviewTalents (for player?)
+    CMSG_LEARN_PREVIEW_TALENTS                      = 0x39e2, // CMSG, lua: LearnPreviewTalents (for player?)
     CMSG_LEARN_PREVIEW_TALENTS_PET                  = 0x4C2, // CMSG, lua: LearnPreviewTalents (for pet?)
     UMSG_UNKNOWN_1219                               = 0x4C3, // not found 3.2
     UMSG_UNKNOWN_1220                               = 0x4C4, // not found 3.2
