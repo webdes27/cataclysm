@@ -204,6 +204,17 @@ struct AchievementCriteriaEntry
             uint32  spellID;                                // 3
             uint32  castCount;                              // 4
         } cast_spell;
+        
+        // ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE       = 30
+        struct
+        {
+            uint32  captureID;                                // 3
+            uint32  captureCount;                             // 4
+            //uint32  additionalRequirement1_type;            // 5 
+            //uint32  additionalRequirement1_value;           // 6 
+            //uint32  additionalRequirement2_type;            // 7 
+            //uint32  additionalRequirement2_value;           // 8 
+        } objective_capture;
 
         // ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA = 31
         struct
@@ -409,6 +420,8 @@ struct AchievementCriteriaEntry
         {
             uint32  unused;                                 // 3
             uint32  killCount;                              // 4
+            uint32  flag;                                   // 5
+            uint32  mapid;                                  // 6
         } special_pvp_kill;
 
         // ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT     = 72
@@ -1704,7 +1717,7 @@ struct VehicleEntry
     uint32  m_uiLocomotionType;                             // 34
     float   m_msslTrgtImpactTexRadius;                      // 35
     uint32  m_uiSeatIndicatorType;                          // 36
-                                                            // 37, new in 3.1
+    uint32  m_powerType;                                    // 37, new in 3.1
                                                             // 38, new in 3.1
                                                             // 39, new in 3.1
 };
@@ -1759,6 +1772,23 @@ struct VehicleSeatEntry
     uint32  m_flagsB;                                       // 45
                                                             // 46-57 added in 3.1, floats mostly
     //uint32 unk[6];                                        // 58-63
+	bool IsUsable() const { return m_flags & 0x2000000; }
+};
+
+struct WMOAreaTableEntry
+{
+    uint32 Id; // 0 index
+    int32 rootId; // 1 used in root WMO
+    int32 adtId; // 2 used in adt file
+    int32 groupId; // 3 used in group WMO
+    //uint32 field4;
+    //uint32 field5;
+    //uint32 field6;
+    //uint32 field7;
+    //uint32 field8;
+    uint32 Flags; // 9 used for indoor/outdoor determination
+    uint32 areaId; // 10 link to AreaTableEntry.ID
+    //char *Name; // 11
 };
 
 struct WorldMapAreaEntry

@@ -66,6 +66,8 @@ enum Races
     (1<<(RACE_NIGHTELF-1))|(1<<(RACE_UNDEAD_PLAYER-1))|(1<<(RACE_TAUREN-1))  | \
     (1<<(RACE_GNOME-1))   |(1<<(RACE_TROLL-1))        |(1<<(RACE_BLOODELF-1))| \
     (1<<(RACE_DRAENEI-1)) |(1<<(RACE_GOBLIN-1))       |(1<<(RACE_WORGEN-1)))
+	/*(1<<(RACE_GNOME-1))		|(1<<(RACE_TROLL-1))        |(1<<(RACE_GOBLIN-1))  | \
+    (1<<(RACE_BLOODELF-1)) | 1<<(RACE_DRAENEI-1))		|(1<<(RACE_WORGEN-1)))*/
 
 // Class value is index in ChrClasses.dbc
 enum Classes
@@ -2634,7 +2636,7 @@ enum BattleGroundTypeId
     BATTLEGROUND_IC            = 30,
     BATTLEGROUND_RB            = 32,                        // random battleground
     BATTLEGROUND_TP            = 108,                       // 4.0.0
-    BATTLEGROUND_BG            = 118                        // 4.0.0
+    BATTLEGROUND_TB            = 118                        // 4.0.0
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 119
