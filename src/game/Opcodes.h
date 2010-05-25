@@ -264,7 +264,7 @@ enum Opcodes
     CMSG_FORCE_RUN_SPEED_CHANGE_ACK                 = 0x09e2,
     SMSG_FORCE_RUN_BACK_SPEED_CHANGE                = 0x4961,
     CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK            = 0x0E5,
-    SMSG_FORCE_SWIM_SPEED_CHANGE                    = 0x0b60,
+    SMSG_FORCE_SWIM_SPEED_CHANGE                    = 0x0B60,
     CMSG_FORCE_SWIM_SPEED_CHANGE_ACK                = 0x0E7,
     SMSG_FORCE_MOVE_ROOT                            = 0xb964,
     CMSG_FORCE_MOVE_ROOT_ACK                        = 0x0E9,
@@ -1369,7 +1369,7 @@ enum Opcodes
     UMSG_UNKNOWN_1332                               = 0x534, // not found
     UMSG_UNKNOWN_1333                               = 0x535, // not found
     UMSG_UNKNOWN_1334                               = 0x536, // not found
-       SMSG_UNKNOWN_XXX                                                                = 0xd6d,
+	SMSG_UNKNOWN_XXX                                = 0xd6d,
     NUM_MSG_TYPES                                   = 0xffff
 };
 
