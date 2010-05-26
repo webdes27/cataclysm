@@ -4,7 +4,7 @@
 
 /*STORMWIND CASTLE*/
 DELETE FROM `creature` WHERE `guid` IN ('935799', '935800', '935801', '935802', '935803', '935804', '935805', '935806', '935807', '935808', '935809');
-INSERT INTO `creature`(`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
+REPLACE INTO `creature`(`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
 (935799, 7410, 0, 1, 1, 0, 0, -8404.20, 202.18, 155.34, 2.25, 60000, 0.0, 0, 157200, 0, 0, 0),
 (935800, 29611, 0, 1, 1, 0, 0, -8363.88, 233.40, 156.98, 2.23, 60000, 0.0, 0, 5726000, 0, 0, 0),
 (935801, 1747, 0, 1, 1, 0, 0, -8361.47, 235.28, 156.98, 2.23, 60000, 0.0, 0, 102, 0, 0, 0),
@@ -19,7 +19,7 @@ INSERT INTO `creature`(`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`,
 
 /*STORMWIND: DWARVEN DISTRICT*/
 DELETE FROM `creature` WHERE `guid` IN ('935810', '935811', '935812', '935813', '935814', '935815', '935816', '935817', '935818', '137754', '137753');
-INSERT INTO `creature`(`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
+REPLACE INTO `creature`(`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
 (935810, 8671, 0, 1, 1, 0, 0, -8373.95, 677.40, 98.65, 5.03, 60000, 0.0, 0, 7005, 0, 0, 0),
 (935811, 9859, 0, 1, 1, 0, 0, -8368.79, 678.81, 98.65, 5.03, 60000, 0.0, 0, 6645, 0, 0, 0),
 (935812, 8720, 0, 1, 1, 0, 0, -8363.78, 679.91, 98.65, 5.03, 60000, 0.0, 0, 6645, 0, 0, 0),
@@ -32,7 +32,7 @@ INSERT INTO `creature`(`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`,
 
 /*STORMWIND TRADE DISTRICT*/
 DELETE FROM `creature` WHERE `guid` IN ('935819', '935820', '935821', '935822', '935823', '935824', '935825', '935826', '935827');
-INSERT INTO `creature`(`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
+REPLACE INTO `creature`(`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
 (935819, 15659, 0, 1, 1, 0, 0, -8813.61, 661.05, 99.53, 3.58, 60000, 0.0, 0, 6645, 0, 0, 0),
 (935820, 8719, 0, 1, 1, 0, 0, -8815.67, 665.80, 99.53, 3.58, 60000, 0.0, 0, 6645, 0, 0, 0),
 (935821, 8670, 0, 1, 1, 0, 0, -8811.60, 656.27, 99.53, 3.58, 60000, 0.0, 0, 6645, 0, 0, 0),
@@ -45,7 +45,7 @@ INSERT INTO `creature`(`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`,
 
 /*STORWIND GUARDS*/
 DELETE FROM `creature` WHERE `guid` IN ('6375', '6371', '6369', '6365', '6393', '6389');
-INSERT INTO `creature`(`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
+REPLACE INTO `creature`(`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
 (6375, 1756, 0, 1, 1, 0, 0, -8521.33, 442.49, 105.86, 3.83, 30000, 0.0, 0, 25200, 0, 0, 0),
 (6371, 1756, 0, 1, 1, 0, 0, -8529.65, 435.48, 105.87, 0.68, 30000, 0.0, 0, 25200, 0, 0, 0),
 (6369, 1756, 0, 1, 1, 0, 0, -8536.81, 461.80, 104.74, 2.22, 30000, 0.0, 0, 25200, 0, 0, 0),

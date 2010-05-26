@@ -560,7 +560,7 @@ void InitOpcodeTable()
     OPCODE( CMSG_DECHARGE,                                STATUS_NEVER,    &WorldSession::Handle_NULL                     );
     OPCODE( CMSG_GMTICKET_CREATE,                         STATUS_LOGGEDIN, &WorldSession::HandleGMTicketCreateOpcode      );
     OPCODE( SMSG_GMTICKET_CREATE,                         STATUS_NEVER,    &WorldSession::Handle_ServerSide               );
-    OPCODE( CMSG_GMTICKET_UPDATETEXT,                     STATUS_LOGGEDIN, &WorldSession::HandleGMTicketUpdateOpcode      );
+    OPCODE( CMSG_GMTICKET_UPDATETEXT,                     STATUS_NEVER,    &WorldSession::Handle_NULL                     );
     OPCODE( SMSG_GMTICKET_UPDATETEXT,                     STATUS_NEVER,    &WorldSession::Handle_ServerSide               );
     OPCODE( SMSG_ACCOUNT_DATA_TIMES,                      STATUS_NEVER,    &WorldSession::Handle_ServerSide               );
     OPCODE( CMSG_REQUEST_ACCOUNT_DATA,                    STATUS_AUTHED,   &WorldSession::HandleRequestAccountData        );
@@ -576,7 +576,7 @@ void InitOpcodeTable()
     OPCODE( SMSG_GAMEOBJECT_SPAWN_ANIM_OBSOLETE,          STATUS_NEVER,    &WorldSession::Handle_ServerSide               );
     OPCODE( SMSG_GAMEOBJECT_DESPAWN_ANIM,                 STATUS_NEVER,    &WorldSession::Handle_ServerSide               );
     OPCODE( MSG_CORPSE_QUERY,                             STATUS_LOGGEDIN, &WorldSession::HandleCorpseQueryOpcode         );
-    OPCODE( CMSG_GMTICKET_DELETETICKET,                   STATUS_LOGGEDIN, &WorldSession::HandleGMTicketDeleteOpcode      );
+    OPCODE( CMSG_GMTICKET_DELETETICKET,                   STATUS_NEVER,    &WorldSession::Handle_NULL                     );
     OPCODE( SMSG_GMTICKET_DELETETICKET,                   STATUS_NEVER,    &WorldSession::Handle_ServerSide               );
     OPCODE( SMSG_CHAT_WRONG_FACTION,                      STATUS_NEVER,    &WorldSession::Handle_ServerSide               );
     OPCODE( CMSG_GMTICKET_SYSTEMSTATUS,                   STATUS_LOGGEDIN, &WorldSession::HandleGMTicketSystemStatusOpcode);
