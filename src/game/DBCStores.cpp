@@ -30,10 +30,31 @@
 typedef std::map<uint16,uint32> AreaFlagByAreaID;
 typedef std::map<uint32,uint32> AreaFlagByMapID;
 
+struct WMOAreaTableTripple
+{
+    WMOAreaTableTripple(int32 r, int32 a, int32 g) : rootId(r), adtId(a), groupId(g)
+    {
+    }
+
+    bool operator <(const WMOAreaTableTripple& b) const
+    {
+        return memcmp(this, &b, sizeof(WMOAreaTableTripple))<0;
+    }
+
+    // ordered by entropy; that way memcmp will have a minimal medium runtime
+    int32 groupId;
+    int32 rootId;
+    int32 adtId;
+};
+
+typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const *> WMOAreaInfoByTripple;
+
 DBCStorage <AreaTableEntry> sAreaStore(AreaTableEntryfmt);
 DBCStorage <AreaGroupEntry> sAreaGroupStore(AreaGroupEntryfmt);
 static AreaFlagByAreaID sAreaFlagByAreaID;
 static AreaFlagByMapID  sAreaFlagByMapID;                   // for instances without generated *.map files
+
+static WMOAreaInfoByTripple sWMOAreaInfoByTripple;
 
 DBCStorage <AchievementEntry> sAchievementStore(Achievementfmt);
 DBCStorage <AchievementCriteriaEntry> sAchievementCriteriaStore(AchievementCriteriafmt);
@@ -157,6 +178,7 @@ static DBCStorage <TaxiPathNodeEntry> sTaxiPathNodeStore(TaxiPathNodeEntryfmt);
 DBCStorage <TotemCategoryEntry> sTotemCategoryStore(TotemCategoryEntryfmt);
 DBCStorage <VehicleEntry> sVehicleStore(VehicleEntryfmt);
 DBCStorage <VehicleSeatEntry> sVehicleSeatStore(VehicleSeatEntryfmt);
+DBCStorage <WMOAreaTableEntry>  sWMOAreaTableStore(WMOAreaTableEntryfmt);
 DBCStorage <WorldMapAreaEntry>  sWorldMapAreaStore(WorldMapAreaEntryfmt);
 DBCStorage <WorldMapOverlayEntry> sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
 DBCStorage <WorldSafeLocsEntry> sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
@@ -257,13 +279,19 @@ struct LocalData
 };
 
 template<class T>
-inline void LoadDBC(LocalData& localeData,barGoLink& bar, StoreProblemList& errlist, DBCStorage<T>& storage, const std::string& dbc_path, const std::string& filename)
+inline void LoadDBC(LocalData& localeData,barGoLink& bar, StoreProblemList& errlist, DBCStorage<T>& storage, const std::string& dbc_path, const std::string& filename, const std::string * custom_entries = NULL, const std::string * idname = NULL)
 {
     // compatibility format and C++ structure sizes
     ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDBC_assert_print(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()),sizeof(T),filename));
 
     std::string dbc_filename = dbc_path + filename;
-    if(storage.Load(dbc_filename.c_str(),localeData.defaultLocale))
+
+    SqlDbc * sql = NULL;
+
+    if (custom_entries)
+        sql = new SqlDbc(&filename,custom_entries,idname,storage.GetFormat());
+
+    if(storage.Load(dbc_filename.c_str(),localeData.defaultLocale,sql))
     {
         bar.step();
         for(uint8 i = 0; fullLocaleNameList[i].name; ++i)
@@ -317,6 +345,9 @@ inline void LoadDBC(LocalData& localeData,barGoLink& bar, StoreProblemList& errl
         else
             errlist.push_back(dbc_filename);
     }
+
+    if (sql)
+        delete sql;
 }
 
 void LoadDBCStores(const std::string& dataPath)
@@ -450,7 +481,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSkillLineStore,           dbcPath,"SkillLine.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSkillLineAbilityStore,    dbcPath,"SkillLineAbility.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSoundEntriesStore,        dbcPath,"SoundEntries.dbc");
-    LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSpellStore,               dbcPath,"Spell.dbc");
+    LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSpellStore,               dbcPath,"Spell.dbc", &CustomSpellEntryfmt, &CustomSpellEntryIndex);
     for(uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
         SpellEntry const * spell = sSpellStore.LookupEntry(i);
@@ -463,6 +494,20 @@ void LoadDBCStores(const std::string& dataPath)
         std::swap(*((uint32*)(&spell->SpellFamilyFlags)),*(((uint32*)(&spell->SpellFamilyFlags))+1));
         #endif
     }
+
+    //Surge of power spells should be longer
+    SpellEntry *sfix4 = const_cast<SpellEntry*>(sSpellStore.LookupEntry(57407));
+    sfix4->DurationIndex = 28;
+    SpellEntry *sfix5 = const_cast<SpellEntry*>(sSpellStore.LookupEntry(60936));
+    sfix5->DurationIndex = 28;
+
+    //Lifebloom final heal
+    SpellEntry *sfix6 = const_cast<SpellEntry*>(sSpellStore.LookupEntry(33778));
+    sfix6->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
+
+    //Spirit of Redemption has AURA_INTERRUPT_FLAG_CAST, what the...? Maybe blizz changed this flag
+    SpellEntry *sfix7 = const_cast<SpellEntry*>(sSpellStore.LookupEntry(27827));
+    sfix7->AuraInterruptFlags = 0;
 
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
     {
@@ -608,11 +653,6 @@ void LoadDBCStores(const std::string& dataPath)
             // old continent node (+ nodes virtually at old continents, check explicitly to avoid loading map files for zone info)
             if (node->map_id < 2 || i == 82 || i == 83 || i == 93 || i == 94)
                 sOldContinentsNodesMask[field] |= submask;
-
-			// fix DK node at Ebon Hold
-            if (i == 315) {
-                ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
-			}
         }
     }
 
@@ -620,6 +660,14 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sVehicleStore,             dbcPath,"Vehicle.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sVehicleSeatStore,         dbcPath,"VehicleSeat.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sWorldMapAreaStore,        dbcPath,"WorldMapArea.dbc");
+    LoadDBC(availableDbcLocales,bar,bad_dbc_files,sWMOAreaTableStore,        dbcPath,"WMOAreaTable.dbc");
+    for(uint32 i = 0; i < sWMOAreaTableStore.GetNumRows(); ++i)
+    {
+        if(WMOAreaTableEntry const* entry = sWMOAreaTableStore.LookupEntry(i))
+        {
+            sWMOAreaInfoByTripple.insert(WMOAreaInfoByTripple::value_type(WMOAreaTableTripple(entry->rootId, entry->adtId, entry->groupId), entry));
+        }
+    }
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sWorldMapOverlayStore,     dbcPath,"WorldMapOverlay.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sWorldSafeLocsStore,       dbcPath,"WorldSafeLocs.dbc");
 
@@ -640,16 +688,16 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // Check loaded DBC files proper version
-    if( !sAreaStore.LookupEntry(3617)              ||       // last area (areaflag) added in 3.3.3a
-        !sCharTitlesStore.LookupEntry(177)         ||       // last char title added in 3.3.3a
-        !sGemPropertiesStore.LookupEntry(1629)     ||       // last gem property added in 3.3.3a
-        !sItemStore.LookupEntry(54860)             ||       // last client known item added in 3.3.3a
-        !sItemExtendedCostStore.LookupEntry(2997)  ||       // last item extended cost added in 3.3.3a
-        !sMapStore.LookupEntry(724)                ||       // last map added in 3.3.3a
-        !sSpellStore.LookupEntry(76567)            )        // last added spell in 3.3.3a
+    if( !sAreaStore.LookupEntry(4044)              ||       // last area (areaflag) added in 4.0.0
+        !sCharTitlesStore.LookupEntry(187)         ||       // last char title added in 4.0.0
+        !sGemPropertiesStore.LookupEntry(1823)     ||       // last gem property added in 4.0.0
+        !sItemStore.LookupEntry(58943)             ||       // last client known item added in 4.0.0
+        !sItemExtendedCostStore.LookupEntry(2999)  ||       // last item extended cost added in 4.0.0
+        !sMapStore.LookupEntry(748)                ||       // last map added in 4.0.0
+        !sSpellStore.LookupEntry(80829)            )        // last added spell in 4.0.0
     {
         sLog.outError("\nYou have mixed version DBC files. Please re-extract DBC files for one from client build: %s",AcceptableClientBuildsListStr().c_str());
-        exit(1);
+        //exit(1);
     }
 
     sLog.outString();
@@ -703,6 +751,15 @@ int32 GetAreaFlagByAreaID(uint32 area_id)
         return -1;
 
     return i->second;
+}
+
+WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid)
+{
+        WMOAreaInfoByTripple::iterator i = sWMOAreaInfoByTripple.find(WMOAreaTableTripple(rootid, adtid, groupid));
+            if(i == sWMOAreaInfoByTripple.end())
+                        return NULL;
+                return i->second;
+
 }
 
 AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id)
@@ -879,7 +936,7 @@ bool IsPointInAreaTriggerZone(AreaTriggerEntry const* atEntry, uint32 mapid, flo
         // rotate the players position instead of rotating the whole cube, that way we can make a simplified
         // is-in-cube check and we have to calculate only one point instead of 4
 
-        // 2PI = 360°, keep in mind that ingame orientation is counter-clockwise
+        // 2PI = 360?, keep in mind that ingame orientation is counter-clockwise
         double rotation = 2*M_PI-atEntry->box_orientation;
         double sinVal = sin(rotation);
         double cosVal = cos(rotation);
@@ -906,11 +963,15 @@ bool IsPointInAreaTriggerZone(AreaTriggerEntry const* atEntry, uint32 mapid, flo
 }
 
 // script support functions
-MANGOS_DLL_SPEC DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore()   { return &sSoundEntriesStore;   }
-MANGOS_DLL_SPEC DBCStorage <SpellEntry>         const* GetSpellStore()          { return &sSpellStore;          }
-MANGOS_DLL_SPEC DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore()     { return &sSpellRangeStore;     }
-MANGOS_DLL_SPEC DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
-MANGOS_DLL_SPEC DBCStorage <ItemEntry>          const* GetItemDisplayStore()    { return &sItemStore;           }
-MANGOS_DLL_SPEC DBCStorage <CreatureDisplayInfoEntry> const* GetCreatureDisplayStore() { return &sCreatureDisplayInfoStore; }
-MANGOS_DLL_SPEC DBCStorage <EmotesEntry>        const* GetEmotesStore()         { return &sEmotesStore;         }
-MANGOS_DLL_SPEC DBCStorage <EmotesTextEntry>    const* GetEmotesTextStore()     { return &sEmotesTextStore;     }
+MANGOS_DLL_SPEC DBCStorage <SoundEntriesEntry>  		const* GetSoundEntriesStore()   	{ return &sSoundEntriesStore;   }
+MANGOS_DLL_SPEC DBCStorage <SpellEntry>        		 	const* GetSpellStore()          	{ return &sSpellStore;          }
+MANGOS_DLL_SPEC DBCStorage <SpellRangeEntry>    		const* GetSpellRangeStore()     	{ return &sSpellRangeStore;     }
+MANGOS_DLL_SPEC DBCStorage <FactionEntry>       		const* GetFactionStore()        	{ return &sFactionStore;        }
+MANGOS_DLL_SPEC DBCStorage <ItemEntry>          		const* GetItemDisplayStore()    	{ return &sItemStore;           }
+MANGOS_DLL_SPEC DBCStorage <CreatureDisplayInfoEntry> 	const* GetCreatureDisplayStore() 	{ return &sCreatureDisplayInfoStore; }
+MANGOS_DLL_SPEC DBCStorage <EmotesEntry>        		const* GetEmotesStore()         	{ return &sEmotesStore;         }
+MANGOS_DLL_SPEC DBCStorage <AchievementEntry>                   const* GetAchievementStore()    { return &sAchievementStore;    }
+MANGOS_DLL_SPEC DBCStorage <EmotesTextEntry>
+            const* GetEmotesTextStore()    		{ return &sEmotesTextStore;     }
+MANGOS_DLL_SPEC DBCStorage <CharTitlesEntry>
+             const* GetCharTitlesStore() 		{ return &sCharTitlesStore; 	}
