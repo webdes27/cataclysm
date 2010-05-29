@@ -3702,11 +3702,15 @@ void Aura::HandleChannelDeathItem(bool apply, bool Real)
         if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
             return;
 
-        // Soul Shard only from non-grey units
-        if( spellInfo->EffectItemType[m_effIndex] == 6265 &&
-            (victim->getLevel() <= MaNGOS::XP::GetGrayLevel(caster->getLevel()) ||
-             victim->GetTypeId()==TYPEID_UNIT && !((Player*)caster)->isAllowedToLoot((Creature*)victim)) )
-            return;
+        // Soul Shard (target req.)
+        if (spellInfo->EffectItemType[m_effIndex] == 6265)
+        {
+            // Only from non-grey units
+            if (!((Player*)caster)->isHonorOrXPTarget(victim) ||
+                victim->GetTypeId() == TYPEID_UNIT && !((Player*)caster)->isAllowedToLoot((Creature*)victim))
+                return;
+        }
+
         //Adding items
         uint32 noSpaceForCount = 0;
         uint32 count = m_modifier.m_amount;
@@ -3722,7 +3726,15 @@ void Aura::HandleChannelDeathItem(bool apply, bool Real)
         }
 
         Item* newitem = ((Player*)caster)->StoreNewItem(dest, spellInfo->EffectItemType[m_effIndex], true);
-        ((Player*)caster)->SendNewItem(newitem, count, true, false);
+        ((Player*)caster)->SendNewItem(newitem, count, true, true);
+
+        // Soul Shard (glyph bonus)
+        if (spellInfo->EffectItemType[m_effIndex] == 6265)
+        {
+            // Glyph of Soul Shard
+            if (caster->HasAura(58070) && roll_chance_i(40))
+                caster->CastSpell(caster, 58068, true, NULL, this);
+        }
     }
 }
 
@@ -5118,7 +5130,17 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                 }
                 break;
             }
-			case SPELLFAMILY_DRUID:
+            case SPELLFAMILY_WARLOCK:
+            {
+                // Drain Soul
+                if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000))
+                {
+                    if (m_target->GetHealth() * 100 / m_target->GetMaxHealth() <= 25)
+                        m_modifier.m_amount *= 4;
+                }
+                break;
+            }
+            case SPELLFAMILY_DRUID:
             {
                 // Rake
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000001000) && m_spellProto->Effect[EFFECT_INDEX_2] == SPELL_EFFECT_ADD_COMBO_POINTS)
@@ -5208,13 +5230,12 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                 }
                 break;
             }
-			case SPELLFAMILY_DEATHKNIGHT:
+            case SPELLFAMILY_DEATHKNIGHT:
             {
-                // Frost Fever and Blood Plague damage calculation
-                if(GetSpellProto()->SpellFamilyFlags2 & 0x2)
+                //Frost Fever and Blood Plague AP scale
+                if (m_spellProto->SpellFamilyFlags & UI64LIT(0x400080000000000))
                 {
-                    m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.08525 /* orginally* 0.055 * 1.55*/);
-                    return;
+                    m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.055f * 1.15f);
                 }
                 break;
             }
@@ -6884,14 +6905,6 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
             // second part of spell apply
             switch (GetId())
             {
-                case 45524:                                 // Chains of Ice
-                {
-                    if (apply)
-                        spellId1 = 55095;                   // Frost Fever
-                    else
-                        return;
-                    break;
-                }
                 case 49039: spellId1 = 50397; break;        // Lichborne
 
                 case 48263:                                 // Frost Presence
@@ -7573,7 +7586,7 @@ void Aura::PeriodicTick()
 
             // only from players
             // FIXME: need use SpellDamageBonus instead?
-            if (IS_PLAYER_GUID(m_caster_guid))
+            if (pCaster->GetTypeId() == TYPEID_PLAYER)
                 pdamage -= m_target->GetSpellDamageReduction(pdamage);
 
             m_target->CalculateAbsorbAndResist(pCaster, GetSpellSchoolMask(GetSpellProto()), DOT, pdamage, &absorb, &resist, !(GetSpellProto()->AttributesEx2 & SPELL_ATTR_EX2_CANT_REFLECTED));
@@ -7597,6 +7610,19 @@ void Aura::PeriodicTick()
             pCaster->ProcDamageAndSpell(m_target, procAttacker, procVictim, PROC_EX_NORMAL_HIT, pdamage, BASE_ATTACK, GetSpellProto());
 
             pCaster->DealDamage(m_target, pdamage, &cleanDamage, DOT, GetSpellSchoolMask(GetSpellProto()), GetSpellProto(), true);
+
+            // Drain Soul (chance soul shard)
+            if (pCaster->GetTypeId() == TYPEID_PLAYER && m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000))
+            {
+                // Only from non-grey units
+                if (roll_chance_i(10) &&                    // 1-2 from drain with final and without glyph, 0-1 from damage
+                    ((Player*)pCaster)->isHonorOrXPTarget(m_target) &&
+                    (m_target->GetTypeId() != TYPEID_UNIT || ((Player*)pCaster)->isAllowedToLoot((Creature*)m_target)))
+                {
+                    pCaster->CastSpell(pCaster, 43836, true, NULL, this);
+                }
+            }
+
             break;
         }
         case SPELL_AURA_PERIODIC_LEECH:
