@@ -15,3 +15,6 @@ DELETE FROM `instance_template` WHERE `map` = 2
 
 UPDATE item_template SET description = displayid WHERE NAME = entry;
 UPDATE `item_template` SET `name` = entry WHERE `name` = '';
+
+UPDATE `playercreateinfo` SET `zone` = 4714 WHERE `race` = 22;
+UPDATE `playercreateinfo` SET `zone` = 4737 WHERE `race` = 9;
