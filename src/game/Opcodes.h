@@ -526,9 +526,12 @@ enum Opcodes
     MSG_GM_SUMMON                                   = 0x1E9,
     SMSG_ITEM_TIME_UPDATE                           = 0x1EA,
     SMSG_ITEM_ENCHANT_TIME_UPDATE                   = 0x1EB,
-    SMSG_AUTH_CHALLENGE                             = 0x1EC,
-    CMSG_AUTH_SESSION                               = 0x1ED,
-    SMSG_AUTH_RESPONSE                              = 0x1EE,
+	SMSG_AUTH_CHALLENGE                             = 0x8924,
+	CMSG_AUTH_SESSION                               = 0xA000,
+	SMSG_AUTH_RESPONSE                              = 0x442,
+    //SMSG_AUTH_CHALLENGE                             = 0x1EC,
+    //CMSG_AUTH_SESSION                               = 0x1ED,
+    //SMSG_AUTH_RESPONSE                              = 0x1EE,
     MSG_GM_SHOWLABEL                                = 0x1EF,
     CMSG_PET_CAST_SPELL                             = 0x1F0,
     MSG_SAVE_GUILD_EMBLEM                           = 0x1F1,
@@ -1313,7 +1316,8 @@ enum Opcodes
     SMSG_UNKNOWN_1276                               = 0x4FC, // does nothing in 10554
     SMSG_LOOT_SLOT_CHANGED                          = 0x4FD, // EVENT_LOOT_SLOT_CHANGED
     UMSG_UNKNOWN_1278                               = 0x4FE, // not found 10596
-    CMSG_READY_FOR_ACCOUNT_DATA_TIMES               = 0x4FF, // lua: ReadyForAccountDataTimes
+    //CMSG_READY_FOR_ACCOUNT_DATA_TIMES               = 0x4FF, // lua: ReadyForAccountDataTimes
+	CMSG_READY_FOR_ACCOUNT_DATA_TIMES               = 0xC426,
     CMSG_QUERY_QUESTS_COMPLETED                     = 0x500, // lua: QueryQuestsCompleted
     SMSG_QUERY_QUESTS_COMPLETED_RESPONSE            = 0x501, // response to CMSG_QUERY_QUESTS_COMPLETED
     CMSG_GM_REPORT_LAG                              = 0x502, // lua: GMReportLag
