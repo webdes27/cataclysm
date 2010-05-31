@@ -2838,13 +2838,6 @@ void Spell::cast(bool skipCheck)
                 AddPrecastSpell(64380);
             break;
         }
-		case SPELLFAMILY_DEATHKNIGHT:
-        {
-            // Chains of Ice
-            if (m_spellInfo->Id == 45524)
-                AddTriggeredSpell(55095);                     // Frost Fever
-            break;
-        }
         case SPELLFAMILY_PRIEST:
         {
             // Power Word: Shield
